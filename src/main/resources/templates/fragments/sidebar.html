@@ -13,7 +13,12 @@
       </div>
     </div>
 
-    <nav class="mt-2">
+    <nav class="mt-2"
+         th:with="httpRequest=${#httpServletRequest},
+                  currentPath=${httpRequest != null ? httpRequest.getRequestURI() : ''},
+                  mailListActive=${currentPath == '/admin/mail/list' or activePage == 'mail-list'},
+                  mailSendActive=${currentPath == '/admin/mail/send' or activePage == 'mail-send'},
+                  mailMenuOpen=${mailListActive or mailSendActive}">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
           <a th:href="@{/dashboard}"
@@ -22,6 +27,35 @@
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Dashboard</p>
           </a>
+        </li>
+        <li class="nav-item has-treeview"
+            th:classappend="${mailMenuOpen} ? ' menu-open' : ''">
+          <a href="#"
+             class="nav-link"
+             th:classappend="${mailMenuOpen} ? ' active' : ''">
+            <i class="nav-icon fas fa-envelope"></i>
+            <p>
+              メール
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a th:href="@{/admin/mail/list}"
+                 class="nav-link"
+                 th:classappend="${mailListActive} ? ' active' : ''">
+                <i class="fas fa-list nav-icon"></i>
+                <p>メール一覧</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a th:href="@{/admin/mail/send}"
+                 class="nav-link"
+                 th:classappend="${mailSendActive} ? ' active' : ''">
+                <i class="fas fa-paper-plane nav-icon"></i>
+                <p>メール送信</p>
+              </a>
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a th:href="@{/profile}"
