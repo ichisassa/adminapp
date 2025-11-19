@@ -1,4 +1,18 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4" th:fragment="sidebar(activePage)">
+  <style>
+    .sidebar .mail-nav-treeview {
+      margin-left: 0 !important;
+      padding-left: 1rem !important;
+      box-sizing: border-box;
+    }
+
+    .sidebar .mail-nav-treeview .nav-link {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin-left: 0 !important;
+      padding-left: 30px !important;
+    }
+  </style>
   <a th:href="@{/dashboard}" class="brand-link">
     <span class="brand-text font-weight-light" th:text="${@environment.getProperty('app.title')}"></span>
   </a>
@@ -17,8 +31,7 @@
          th:with="httpRequest=${#httpServletRequest},
                   currentPath=${httpRequest != null ? httpRequest.getRequestURI() : ''},
                   mailListActive=${currentPath == '/admin/mail/list' or activePage == 'mail-list'},
-                  mailSendActive=${currentPath == '/admin/mail/send' or activePage == 'mail-send'},
-                  mailMenuOpen=${mailListActive or mailSendActive}">
+                  mailSendActive=${currentPath == '/admin/mail/send' or activePage == 'mail-send'}">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
           <a th:href="@{/dashboard}"
@@ -28,17 +41,17 @@
             <p>Dashboard</p>
           </a>
         </li>
-        <li class="nav-item has-treeview"
-            th:classappend="${mailMenuOpen} ? ' menu-open' : ''">
+        <li class="nav-item has-treeview menu-open">
           <a href="#"
              class="nav-link"
-             th:classappend="${mailMenuOpen} ? ' active' : ''">
+             aria-expanded="true"
+             th:classappend="${mailListActive or mailSendActive} ? ' active' : ''">
             <i class="nav-icon fas fa-envelope"></i>
             <p>
               メール
             </p>
           </a>
-          <ul class="nav nav-treeview">
+          <ul class="nav nav-treeview mail-nav-treeview">
             <li class="nav-item">
               <a th:href="@{/admin/mail/list}"
                  class="nav-link"
