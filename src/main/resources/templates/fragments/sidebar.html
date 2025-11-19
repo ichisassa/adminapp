@@ -1,0 +1,53 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4" th:fragment="sidebar(activePage)">
+  <a th:href="@{/dashboard}" class="brand-link">
+    <span class="brand-text font-weight-light" th:text="${@environment.getProperty('app.title')}"></span>
+  </a>
+
+  <div class="sidebar">
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+        <img th:src="@{/img/admin.png}" class="img-circle elevation-2" alt="User Image">
+      </div>
+      <div class="info">
+        <a href="#" th:text="${@environment.getProperty('app.img-name')}" class="d-block"></a>
+      </div>
+    </div>
+
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <li class="nav-item">
+          <a th:href="@{/dashboard}"
+             class="nav-link"
+             th:classappend="${activePage} == 'dashboard' ? ' active' : ''">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a th:href="@{/profile}"
+             class="nav-link"
+             th:classappend="${activePage} == 'profile' ? ' active' : ''">
+            <i class="nav-icon fas fa-user"></i>
+            <p>Profile</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a th:href="@{/settings}"
+             class="nav-link"
+             th:classappend="${activePage} == 'settings' ? ' active' : ''">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>Settings</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a th:href="@{/reports}"
+             class="nav-link"
+             th:classappend="${activePage} == 'reports' ? ' active' : ''">
+            <i class="nav-icon fas fa-chart-bar"></i>
+            <p>Reports</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</aside>

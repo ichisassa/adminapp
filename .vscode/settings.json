@@ -1,0 +1,27 @@
+{
+  "window.customTitleBarVisibility": "windowed",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\work\\java\\jdk-21.0.9"
+    },
+    {
+      "name": "JavaSE-25",
+      "path": "C:\\work\\java\\jdk-25.0.1"
+    }
+  ],
+  "java.jdt.ls.java.home": "C:\\work\\java\\jdk-21.0.9",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.secondarySideBar.showLabels": false,
+  "java.compile.nullAnalysis.mode": "disabled",
+  "terminal.integrated.env.windows": {
+    "JAVA_HOME": "C:\\work\\java\\jdk-21.0.9",
+    "PATH": "C:\\work\\java\\jdk-21.0.9\\bin;${env:PATH}"
+  },
+  "editor.fontFamily": "'MS Mincho', 'ＭＳ 明朝', monospace",
+  "editor.fontSize": 16,
+  "editor.fontLigatures": false,
+  "editor.scrollBeyondLastLine": false,
+  "editor.stickyScroll.enabled": false,
+  "java.configuration.updateBuildConfiguration": "interactive",
+}

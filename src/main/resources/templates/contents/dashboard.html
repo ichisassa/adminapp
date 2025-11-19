@@ -1,0 +1,15 @@
+<section class="content" th:fragment="content">
+  <div class="container-fluid d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="text-center">
+      <p class="text-muted mb-2"
+         th:text="${#temporals.format(
+           T(java.time.LocalDateTime).now(),
+           'uuuu年M月d日（E） HH:mm',
+           T(java.util.Locale).JAPANESE
+         )}">2024年1月1日（月） 10:00</p>
+      <h1 class="display-4 font-weight-bold mb-3"
+          th:text="${@environment.getProperty('dashboard.welcome')}">ようこそ、管理画面へ</h1>
+      <p class="lead text-secondary">本日の作業を快適に進めていきましょう。</p>
+    </div>
+  </div>
+</section>
