@@ -1,7 +1,372 @@
 <section class="content" th:fragment="content">
-  <div class="container-fluid">
-    <div class="alert alert-secondary text-white mb-0">
-      メール一覧画面は現在準備中です。
+  <div class="content pt-0">
+    <div class="container-fluid">
+      <div class="row align-items-center mb-1">
+        <div class="col-sm-6">
+          <a class="btn btn-primary btn-sm" th:href="@{/admin/mail/send}">
+            <i class="fas fa-plus mr-1"></i>新規メール送信
+          </a>
+        </div>
+      </div>
+
+      <!-- Search Card -->
+      <div class="card card-outline card-primary mb-1" id="searchConditionsCard">
+        <div class="card-header py-1">
+          <h3 class="card-title mb-0 text-sm">検索条件</h3>
+        </div>
+        <div class="card-body py-2">
+          <form id="mailLogSearchForm">
+            <div class="form-row align-items-end mb-1">
+              <div class="form-group col-md-4 mb-1">
+                <label for="sentAtFrom" class="small mb-1">送信日時</label>
+                <div class="form-row">
+                  <div class="col-sm-6 mb-2 mb-sm-0">
+                    <div class="input-group input-group-sm date" id="sentAtFromPicker" data-target-input="nearest">
+                      <input type="text" class="form-control form-control-sm datetimepicker-input" id="sentAtFrom"
+                             name="sentAtFrom" placeholder="yyyy/MM/dd HH:mm"
+                             data-toggle="datetimepicker" data-target="#sentAtFromPicker">
+                      <div class="input-group-append" data-toggle="datetimepicker" data-target="#sentAtFromPicker">
+                        <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group input-group-sm date" id="sentAtToPicker" data-target-input="nearest">
+                      <input type="text" class="form-control form-control-sm datetimepicker-input" id="sentAtTo"
+                             name="sentAtTo" placeholder="yyyy/MM/dd HH:mm"
+                             data-toggle="datetimepicker" data-target="#sentAtToPicker">
+                      <div class="input-group-append" data-toggle="datetimepicker" data-target="#sentAtToPicker">
+                        <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group col-md-2 mb-1">
+                <label for="status" class="small mb-1">ステータス</label>
+                <select class="form-control form-control-sm" id="status" name="status">
+                  <option value="">すべて</option>
+                  <option value="SUCCESS">SUCCESS</option>
+                  <option value="FAILED">FAILED</option>
+                </select>
+              </div>
+              <div class="form-group col-md-3 mb-1">
+                <label for="toAddress" class="small mb-1">宛先（To）</label>
+                <input type="text" class="form-control form-control-sm" id="toAddress" name="toAddress" placeholder="example@example.com">
+              </div>
+              <div class="form-group col-md-3 mb-1">
+                <label for="subject" class="small mb-1">件名</label>
+                <input type="text" class="form-control form-control-sm" id="subject" name="subject" placeholder="件名を入力">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer text-right py-1">
+          <button type="button" class="btn btn-primary btn-sm mr-1" id="btnSearch">検索</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnClear">条件クリア</button>
+        </div>
+      </div>
+
+      <!-- List Card -->
+      <div class="card mb-0" id="mailLogListCard">
+        <div class="card-header py-1">
+          <h3 class="card-title mb-0 text-sm">メール一覧</h3>
+        </div>
+        <div class="card-body p-2">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover table-sm text-sm mb-0" id="mailLogTable">
+              <thead class="thead-light text-nowrap">
+              <tr>
+                <th scope="col" class="text-center" style="width: 40px;">
+                  <input type="checkbox" id="selectAllMailLogs">
+                </th>
+                <th scope="col">送信日時</th>
+                <th scope="col">ステータス</th>
+                <th scope="col">宛先（To）</th>
+                <th scope="col">件名</th>
+                <th scope="col">メール形式</th>
+                <th scope="col">エラー概要</th>
+                <th scope="col">操作</th>
+              </tr>
+              </thead>
+              <tbody id="mailLogTableBody">
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-20 10:15</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user1@example.com</td>
+                <td>Dummy Subject 001</td>
+                <td>HTML</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-20 09:40</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user2@example.com</td>
+                <td>Dummy Subject 002</td>
+                <td>Text</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 22:05</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user3@example.com</td>
+                <td>Dummy Subject 003</td>
+                <td>HTML</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 18:30</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user4@example.com</td>
+                <td>Dummy Subject 004</td>
+                <td>HTML</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 15:10</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user5@example.com</td>
+                <td>Dummy Subject 005</td>
+                <td>Text</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 13:25</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user6@example.com</td>
+                <td>Dummy Subject 006</td>
+                <td>HTML</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 11:58</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user7@example.com</td>
+                <td>Dummy Subject 007</td>
+                <td>Text</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 11:10</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user8@example.com</td>
+                <td>Dummy Subject 008</td>
+                <td>HTML</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 09:45</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user9@example.com</td>
+                <td>Dummy Subject 009</td>
+                <td>Text</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-19 08:20</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user10@example.com</td>
+                <td>Dummy Subject 010</td>
+                <td>HTML</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 23:50</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user11@example.com</td>
+                <td>Dummy Subject 011</td>
+                <td>Text</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 22:30</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user12@example.com</td>
+                <td>Dummy Subject 012</td>
+                <td>HTML</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 21:15</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user13@example.com</td>
+                <td>Dummy Subject 013</td>
+                <td>Text</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 20:05</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user14@example.com</td>
+                <td>Dummy Subject 014</td>
+                <td>HTML</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 19:30</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user15@example.com</td>
+                <td>Dummy Subject 015</td>
+                <td>Text</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 18:05</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user16@example.com</td>
+                <td>Dummy Subject 016</td>
+                <td>HTML</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 17:20</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user17@example.com</td>
+                <td>Dummy Subject 017</td>
+                <td>Text</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 16:35</td>
+                <td><span class="badge badge-warning">PENDING</span></td>
+                <td>user18@example.com</td>
+                <td>Dummy Subject 018</td>
+                <td>HTML</td>
+                <td>送信待ち</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 15:10</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>user19@example.com</td>
+                <td>Dummy Subject 019</td>
+                <td>Text</td>
+                <td>-</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td>2025-11-18 14:00</td>
+                <td><span class="badge badge-danger">FAILED</span></td>
+                <td>user20@example.com</td>
+                <td>Dummy Subject 020</td>
+                <td>HTML</td>
+                <td>SMTP error</td>
+                <td><button class="btn btn-outline-primary btn-sm">詳細</button></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer py-1">
+          <div class="row align-items-center">
+            <div class="col-md-6 text-muted text-sm mb-1 mb-md-0">
+              全 120 件中 1〜20 件を表示中
+            </div>
+            <div class="col-md-6">
+              <nav aria-label="Mail log pagination">
+                <ul class="pagination pagination-sm justify-content-md-end mb-0" id="mailLogPagination">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">«</a>
+                  </li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">»</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    window.addEventListener('load', function () {
+      var $ = window.jQuery;
+      if (!$ || !$.fn.datetimepicker) {
+        console.warn('datetimepicker が読み込まれていません。');
+        return;
+      }
+
+      moment.locale('ja');
+
+      var pickerOptions = {
+        locale: 'ja',
+        format: 'YYYY/MM/DD HH:mm',
+        useCurrent: false,
+        icons: {
+          time: 'far fa-clock',
+          date: 'far fa-calendar-alt',
+          up: 'fas fa-chevron-up',
+          down: 'fas fa-chevron-down',
+          previous: 'fas fa-chevron-left',
+          next: 'fas fa-chevron-right',
+          today: 'far fa-calendar-check',
+          clear: 'far fa-trash-alt',
+          close: 'far fa-times-circle'
+        },
+        tooltips: {
+          today: '今日',
+          clear: 'クリア',
+          close: '閉じる',
+          selectDate: '日付を選択',
+          selectTime: '時間を選択',
+          selectMonth: '月を選択',
+          selectYear: '年を選択'
+        }
+      };
+
+      $('#sentAtFromPicker').datetimepicker(pickerOptions);
+      $('#sentAtToPicker').datetimepicker(pickerOptions);
+
+      $('#sentAtFromPicker').on('change.datetimepicker', function (e) {
+        $('#sentAtToPicker').datetimepicker('minDate', e.date);
+      });
+      $('#sentAtToPicker').on('change.datetimepicker', function (e) {
+        $('#sentAtFromPicker').datetimepicker('maxDate', e.date);
+      });
+    });
+    /*]]>*/
+  </script>
 </section>

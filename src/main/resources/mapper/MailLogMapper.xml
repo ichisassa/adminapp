@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.adminapp.mapper.MailLogMapper">
+
+    <resultMap id="MailLogResultMap" type="com.example.adminapp.domain.MailLog">
+        <id property="id" column="id"/>
+        <result property="toAddress" column="to_address"/>
+        <result property="ccAddress" column="cc_address"/>
+        <result property="bccAddress" column="bcc_address"/>
+        <result property="subject" column="subject"/>
+        <result property="body" column="body"/>
+        <result property="isHtml" column="is_html"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="sentAt" column="sent_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <sql id="MailLogColumns">
+        id,
+        to_address,
+        cc_address,
+        bcc_address,
+        subject,
+        body,
+        is_html,
+        status,
+        error_message,
+        sent_at,
+        created_at,
+        updated_at,
+        version
+    </sql>
+
+    <select id="findAll" resultMap="MailLogResultMap">
+        SELECT
+        <include refid="MailLogColumns" />
+        FROM public.mail_log
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+        OFFSET #{offset}
+    </select>
+
+    <select id="findById" resultMap="MailLogResultMap">
+        SELECT
+        <include refid="MailLogColumns" />
+        FROM public.mail_log
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.example.adminapp.domain.MailLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO public.mail_log (
+            to_address,
+            cc_address,
+            bcc_address,
+            subject,
+            body,
+            is_html,
+            status,
+            error_message,
+            sent_at,
+            created_at,
+            updated_at,
+            version
+        ) VALUES (
+            #{toAddress},
+            #{ccAddress},
+            #{bccAddress},
+            #{subject},
+            #{body},
+            #{isHtml},
+            #{status},
+            #{errorMessage},
+            #{sentAt},
+            COALESCE(#{createdAt}, CURRENT_TIMESTAMP),
+            COALESCE(#{updatedAt}, CURRENT_TIMESTAMP),
+            COALESCE(#{version}, 0)
+        )
+    </insert>
+
+    <update id="update" parameterType="com.example.adminapp.domain.MailLog">
+        UPDATE public.mail_log
+        SET
+            to_address = #{toAddress},
+            cc_address = #{ccAddress},
+            bcc_address = #{bccAddress},
+            subject = #{subject},
+            body = #{body},
+            is_html = #{isHtml},
+            status = #{status},
+            error_message = #{errorMessage},
+            sent_at = #{sentAt},
+            updated_at = COALESCE(#{updatedAt}, CURRENT_TIMESTAMP),
+            version = #{version} + 1
+        WHERE id = #{id}
+          AND version = #{version}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM public.mail_log
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
