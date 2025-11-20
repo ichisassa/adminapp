@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Paginated result of a mail log search.
+ * メール送信ログ検索結果を保持するレスポンス DTO。
+ * ページング情報や次ページ有無を含む。
  */
 @Data
 @NoArgsConstructor

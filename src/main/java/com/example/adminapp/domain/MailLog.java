@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * メール送信ログエンティティ。
+ * MyBatis で mail_log テーブルとマッピングされる。
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

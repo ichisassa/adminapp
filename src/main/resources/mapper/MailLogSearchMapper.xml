@@ -50,12 +50,14 @@
         </where>
     </sql>
 
+    <!-- countByCondition: 条件に一致するメールログ件数を集計する -->
     <select id="countByCondition" resultType="long">
         SELECT COUNT(1)
         FROM public.mail_log
         <include refid="MailLogSearchWhereClause"/>
     </select>
 
+    <!-- findByCondition: 条件とページング指定でサマリ一覧を取得する -->
     <select id="findByCondition" resultMap="MailLogSummaryResultMap">
         SELECT
         <include refid="MailLogSummaryColumns" />

@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents one row on the mail log search result list.
+ * メール送信ログ一覧の 1 行分に相当するサマリ DTO。
+ * 画面表示に必要な要約情報のみを保持する。
  */
 @Data
 @NoArgsConstructor

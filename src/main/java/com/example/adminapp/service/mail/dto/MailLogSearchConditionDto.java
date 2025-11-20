@@ -9,6 +9,10 @@ import lombok.NoArgsConstructor;
  * Captures filter and pagination parameters for the mail log list.
  * Page index is zero-based; size represents items per page.
  */
+/**
+ * メール送信ログ検索時の条件をまとめた DTO。
+ * フロントから渡されるキーワードや期間、ページ情報を保持する。
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

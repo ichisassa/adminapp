@@ -1,0 +1,328 @@
+const API_ENDPOINT = '/api/admin/mail/logs';
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGINATION_DISPLAY = 5;
+
+class MailLogListPage {
+  constructor() {
+    this.currentPage = DEFAULT_PAGE;
+    this.pageSize = DEFAULT_PAGE_SIZE;
+    this.lastCondition = null;
+    this.tableBody = null;
+    this.paginationContainer = null;
+    this.summaryElement = null;
+  }
+
+  init() {
+    this.cacheElements();
+    this.registerEventHandlers();
+    this.executeSearch(DEFAULT_PAGE);
+  }
+
+  cacheElements() {
+    this.tableBody = document.getElementById('mailLogTableBody');
+    this.paginationContainer = document.getElementById('mailLogPagination');
+    this.summaryElement = document.getElementById('mailLogSummary');
+  }
+
+  registerEventHandlers() {
+    const searchButton = document.getElementById('btnSearch');
+    const clearButton = document.getElementById('btnClear');
+
+    if (searchButton) {
+      searchButton.addEventListener('click', () => this.handleSearchButton());
+    }
+    if (clearButton) {
+      clearButton.addEventListener('click', () => this.handleClearButton());
+    }
+    if (this.paginationContainer) {
+      this.paginationContainer.addEventListener('click', (event) => this.handlePaginationClick(event));
+    }
+  }
+
+  handleSearchButton() {
+    this.lastCondition = this.collectSearchCondition();
+    this.executeSearch(DEFAULT_PAGE);
+  }
+
+  handleClearButton() {
+    this.resetForm();
+    this.lastCondition = this.collectSearchCondition();
+    this.executeSearch(DEFAULT_PAGE);
+  }
+
+  handlePaginationClick(event) {
+    const target = event.target;
+    if (!target) {
+      return;
+    }
+    const anchor = target.closest('a[data-page]');
+    if (!anchor) {
+      return;
+    }
+    event.preventDefault();
+    const page = Number(anchor.dataset.page);
+    if (Number.isNaN(page) || page < 1 || page === this.currentPage) {
+      return;
+    }
+    this.executeSearch(page);
+  }
+
+  collectSearchCondition() {
+    return {
+      sentAtFrom: this.getInputValue('sentAtFrom'),
+      sentAtTo: this.getInputValue('sentAtTo'),
+      status: this.getSelectValue('status'),
+      toAddress: this.getInputValue('toAddress'),
+      subject: this.getInputValue('subject'),
+    };
+  }
+
+  getInputValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : '';
+  }
+
+  getSelectValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : '';
+  }
+
+  resetForm() {
+    ['sentAtFrom', 'sentAtTo', 'toAddress', 'subject'].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.value = '';
+      }
+    });
+    const statusSelect = document.getElementById('status');
+    if (statusSelect) {
+      statusSelect.value = '';
+    }
+  }
+
+  async executeSearch(page) {
+    try {
+      const params = this.buildQueryParams(page);
+      const response = await fetch(`${API_ENDPOINT}?${params.toString()}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      const data = await response.json();
+      this.currentPage = page;
+      this.renderTable(data.items);
+      this.renderPagination(data);
+      this.renderSummary(data);
+    } catch (error) {
+      console.error('Failed to fetch mail logs', error);
+      window.alert('検索中にエラーが発生しました。時間をおいて再度お試しください。');
+    }
+  }
+
+  buildQueryParams(page) {
+    const params = new URLSearchParams();
+    const condition = this.lastCondition ?? this.collectSearchCondition();
+
+    const append = (key, value) => {
+      if (value) {
+        params.append(key, value);
+      }
+    };
+
+    append('sentAtFrom', condition.sentAtFrom);
+    append('sentAtTo', condition.sentAtTo);
+    append('status', condition.status);
+    append('toAddress', condition.toAddress);
+    append('subject', condition.subject);
+
+    params.append('page', String(page));
+    params.append('size', String(this.pageSize));
+
+    return params;
+  }
+
+  renderTable(items) {
+    if (!this.tableBody) {
+      return;
+    }
+    this.tableBody.innerHTML = '';
+
+    if (!items || items.length === 0) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 8;
+      cell.className = 'text-center text-muted';
+      cell.textContent = '該当するメール送信ログはありません。';
+      row.appendChild(cell);
+      this.tableBody.appendChild(row);
+      return;
+    }
+
+    items.forEach((item) => {
+      const row = document.createElement('tr');
+      row.appendChild(this.createCheckboxCell());
+      row.appendChild(this.createTextCell(this.formatDateTime(item.sentAt)));
+      row.appendChild(this.createStatusCell(item.status));
+      row.appendChild(this.createTextCell(item.toAddress));
+      row.appendChild(this.createTextCell(item.subject));
+      row.appendChild(this.createTextCell(item.isHtml ? 'HTML' : 'Text'));
+      row.appendChild(this.createTextCell(this.truncate(item.errorMessage)));
+      row.appendChild(this.createActionCell(item.id));
+      this.tableBody.appendChild(row);
+    });
+  }
+
+  createCheckboxCell() {
+    const cell = document.createElement('td');
+    cell.className = 'text-center';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    cell.appendChild(checkbox);
+    return cell;
+  }
+
+  createTextCell(text) {
+    const cell = document.createElement('td');
+    cell.textContent = text;
+    return cell;
+  }
+
+  createStatusCell(status) {
+    const cell = document.createElement('td');
+    const span = document.createElement('span');
+    span.className = `badge ${this.resolveStatusBadgeClass(status)}`;
+    span.textContent = status || '-';
+    cell.appendChild(span);
+    return cell;
+  }
+
+  createActionCell(id) {
+    const cell = document.createElement('td');
+    cell.className = 'text-nowrap';
+
+    const detailButton = document.createElement('button');
+    detailButton.className = 'btn btn-outline-primary btn-sm mr-1';
+    detailButton.textContent = '詳細';
+    detailButton.dataset.id = String(id);
+    detailButton.addEventListener('click', () => window.alert('詳細機能は準備中です'));
+
+    const resendButton = document.createElement('button');
+    resendButton.className = 'btn btn-outline-secondary btn-sm';
+    resendButton.textContent = '再送';
+    resendButton.dataset.id = String(id);
+    resendButton.addEventListener('click', () => window.alert('再送機能は準備中です'));
+
+    cell.appendChild(detailButton);
+    cell.appendChild(resendButton);
+    return cell;
+  }
+
+  renderPagination(data) {
+    if (!this.paginationContainer) {
+      return;
+    }
+    this.paginationContainer.innerHTML = '';
+
+    const totalPages = data.totalPages > 0 ? data.totalPages : Math.max(1, Math.ceil(data.totalCount / data.size));
+    const currentPage = data.page + 1;
+
+    const appendPageItem = (label, page, disabled = false, active = false) => {
+      const li = document.createElement('li');
+      li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+      const anchor = document.createElement('a');
+      anchor.className = 'page-link';
+      anchor.href = '#';
+      if (!disabled) {
+        anchor.dataset.page = String(page);
+      }
+      anchor.textContent = label;
+      li.appendChild(anchor);
+      this.paginationContainer.appendChild(li);
+    };
+
+    appendPageItem('«', currentPage - 1, currentPage <= 1);
+
+    const half = Math.floor(MAX_PAGINATION_DISPLAY / 2);
+    let start = Math.max(1, currentPage - half);
+    let end = start + MAX_PAGINATION_DISPLAY - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - MAX_PAGINATION_DISPLAY + 1);
+    }
+
+    for (let i = start; i <= end; i += 1) {
+      appendPageItem(String(i), i, false, i === currentPage);
+    }
+
+    appendPageItem('»', currentPage + 1, currentPage >= totalPages);
+  }
+
+  renderSummary(data) {
+    if (!this.summaryElement) {
+      return;
+    }
+    const itemCount = Array.isArray(data.items) ? data.items.length : 0;
+    if (data.totalCount === 0 || itemCount === 0) {
+      this.summaryElement.textContent = '該当するデータがありません。';
+      return;
+    }
+    const start = (data.page * data.size) + 1;
+    const end = Math.min(start + itemCount - 1, data.totalCount);
+    this.summaryElement.textContent = `全 ${data.totalCount} 件中 ${start}〜${end} 件を表示`;
+  }
+
+  resolveStatusBadgeClass(status) {
+    const normalized = (status || '').toUpperCase();
+    switch (normalized) {
+      case 'SUCCESS':
+        return 'badge-success';
+      case 'FAILED':
+      case 'ERROR':
+        return 'badge-danger';
+      case 'PENDING':
+      case 'QUEUED':
+        return 'badge-warning';
+      default:
+        return 'badge-secondary';
+    }
+  }
+
+  formatDateTime(value) {
+    if (!value) {
+      return '-';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    const year = date.getFullYear();
+    const month = this.pad(date.getMonth() + 1);
+    const day = this.pad(date.getDate());
+    const hours = this.pad(date.getHours());
+    const minutes = this.pad(date.getMinutes());
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+  }
+
+  pad(value) {
+    return value < 10 ? `0${value}` : `${value}`;
+  }
+
+  truncate(value, length = 40) {
+    if (!value) {
+      return '-';
+    }
+    if (value.length <= length) {
+      return value;
+    }
+    return `${value.substring(0, length)}...`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const page = new MailLogListPage();
+  page.init();
+});

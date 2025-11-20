@@ -8,6 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+/**
+ * メール送信ログ検索機能の実装クラス。
+ * MyBatis マッパーを用いて条件検索とページング処理を行う。
+ */
 @Service
 public class MailLogSearchServiceImpl implements MailLogSearchService {
 
@@ -16,10 +20,17 @@ public class MailLogSearchServiceImpl implements MailLogSearchService {
 
     private final MailLogSearchMapper mailLogSearchMapper;
 
+    /** 検索用マッパーを注入しサービスを初期化するコンストラクタ。 */
     public MailLogSearchServiceImpl(MailLogSearchMapper mailLogSearchMapper) {
         this.mailLogSearchMapper = mailLogSearchMapper;
     }
 
+    /**
+     * メール送信ログを条件付きで検索し、ページング情報付きの結果を返す。
+     * 無効なページ／サイズを補正し、該当件数が 0 件の場合は空リストを返却する。
+     * @param condition 検索条件 DTO（null 可）
+     * @return          ページング済みの検索結果
+     */
     @Override
     public MailLogSearchResponseDto search(MailLogSearchConditionDto condition) {
         MailLogSearchConditionDto effectiveCondition =
