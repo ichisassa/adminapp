@@ -11,6 +11,6 @@
     </typeAliases>
     <mappers>
         <mapper resource="mapper/MailLogMapper.xml"/>
+        <mapper resource="mapper/MailLogSearchMapper.xml"/>
     </mappers>
 </configuration>
-

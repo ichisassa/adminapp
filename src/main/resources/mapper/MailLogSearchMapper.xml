@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.adminapp.mapper.MailLogSearchMapper">
+
+    <resultMap id="MailLogSummaryResultMap" type="com.example.adminapp.service.mail.dto.MailLogSummaryDto">
+        <id property="id" column="id"/>
+        <result property="toAddress" column="to_address"/>
+        <result property="ccAddress" column="cc_address"/>
+        <result property="bccAddress" column="bcc_address"/>
+        <result property="subject" column="subject"/>
+        <result property="status" column="status"/>
+        <result property="isHtml" column="is_html"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="sentAt" column="sent_at"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <sql id="MailLogSummaryColumns">
+        id,
+        to_address,
+        cc_address,
+        bcc_address,
+        subject,
+        status,
+        is_html,
+        error_message,
+        sent_at,
+        created_at
+    </sql>
+
+    <sql id="MailLogSearchWhereClause">
+        <where>
+            <if test="condition.sentAtFrom != null">
+                AND sent_at <![CDATA[>=]]> #{condition.sentAtFrom}
+            </if>
+            <if test="condition.sentAtTo != null">
+                AND sent_at <![CDATA[<=]]> #{condition.sentAtTo}
+            </if>
+            <if test="condition.status != null and condition.status != ''">
+                AND status = #{condition.status}
+            </if>
+            <if test="condition.toAddress != null and condition.toAddress != ''">
+                AND to_address LIKE CONCAT('%', #{condition.toAddress}, '%')
+            </if>
+            <if test="condition.subjectKeyword != null and condition.subjectKeyword != ''">
+                AND subject LIKE CONCAT('%', #{condition.subjectKeyword}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(1)
+        FROM public.mail_log
+        <include refid="MailLogSearchWhereClause"/>
+    </select>
+
+    <select id="findByCondition" resultMap="MailLogSummaryResultMap">
+        SELECT
+        <include refid="MailLogSummaryColumns" />
+        FROM public.mail_log
+        <include refid="MailLogSearchWhereClause"/>
+        ORDER BY sent_at DESC, id DESC
+        LIMIT #{limit}
+        OFFSET #{offset}
+    </select>
+
+</mapper>
