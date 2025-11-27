@@ -5,16 +5,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * 管理ダッシュボード系画面を表示するコントローラ。
- * 各機能ページのモデルセットと共通レイアウトの切り替えを担う。
+ * AdminController Class
  */
 @Controller
 public class AdminController {
 
   /**
-   * ダッシュボード画面を表示する。
-   * @param model ビューに渡すモデル
-   * @return      レイアウトテンプレート
+   * Dashboard画面表示処理
+   * @param model Model
+   * @return layout.html + dashboard.html
    */
   @GetMapping({"/", "/dashboard"})
   public String dashboard(Model model) {
@@ -22,9 +21,9 @@ public class AdminController {
   }
 
   /**
-   * プロフィール画面を表示する。
-   * @param model ビューに渡すモデル
-   * @return      レイアウトテンプレート
+   * Profile画面表示処理
+   * @param model Model
+   * @return layout.html + profile.html
    */
   @GetMapping("/profile")
   public String profile(Model model) {
@@ -32,9 +31,9 @@ public class AdminController {
   }
 
   /**
-   * 設定画面を表示する。
-   * @param model ビューに渡すモデル
-   * @return      レイアウトテンプレート
+   * Settings画面表示処理
+   * @param model Model
+   * @return layout.html + settings.html
    */
   @GetMapping("/settings")
   public String settings(Model model) {
@@ -42,9 +41,9 @@ public class AdminController {
   }
 
   /**
-   * レポート画面を表示する。
-   * @param model ビューに渡すモデル
-   * @return      レイアウトテンプレート
+   * Reports画面表示処理
+   * @param model Model
+   * @return layout.html + reports.html
    */
   @GetMapping("/reports")
   public String reports(Model model) {
@@ -52,15 +51,39 @@ public class AdminController {
   }
 
   /**
-   * 共通レイアウトに必要な属性を設定し、layout テンプレートを返す。
-   *
-   * @param model モデル
-   * @param pageTitle 画面タイトル
-   * @param contentTemplate コンテンツフラグメント名
-   * @param activePage サイドバーのアクティブ項目
-   * @return レイアウトテンプレート名
+   * MailList画面表示処理
+   * @param model Model
+   * @return layout.html + mail-list.html
    */
-  private String render(Model model, String pageTitle, String contentTemplate, String activePage) {
+  @GetMapping("/admin/mail/list")
+  public String list(Model model) {
+    return render(model, "MailList", "mail-list", "mail-list");
+  }
+
+  /**
+   * MailList画面表示処理
+   * @param model Model
+   * @return layout.html + mail-send.html
+   */
+  @GetMapping("/admin/mail/send")
+  public String send(Model model) {
+    return render(model, "MailSend", "mail-send", "mail-send");
+  }
+
+  /**
+   * 画面共通処理
+   * @param model Model
+   * @param String pageTitle, 
+   * @param String contentTemplate, 
+   * @param String activePage
+   * @return layout.html
+   */
+  private String render(
+    Model  model, 
+    String pageTitle, 
+    String contentTemplate, 
+    String activePage) 
+  {
     model.addAttribute("pageTitle", pageTitle);
     model.addAttribute("contentTemplate", "contents/" + contentTemplate);
     model.addAttribute("activePage", activePage);

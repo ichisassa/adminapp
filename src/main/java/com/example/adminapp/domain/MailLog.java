@@ -5,25 +5,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * メール送信ログエンティティ。
- * MyBatis で mail_log テーブルとマッピングされる。
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MailLog {
-    private Long id;
-    private String toAddress;
-    private String ccAddress;
-    private String bccAddress;
-    private String subject;
-    private String body;
-    private Boolean isHtml;
-    private String status;
-    private String errorMessage;
-    private LocalDateTime sentAt;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Integer version;
+/**
+ * MailLog Class
+ */
+public class MailLog {                  // メール送信ログ(mail_log)
+    private Long id;                    // ID
+    private String toAddress;           // 宛先アドレス
+    private String ccAddress;           // CCアドレス
+    private String bccAddress;          // BCCアドレス
+    private String subject;             // 件名
+    private String body;                // 本文
+    private Boolean isHtml;             // HTMLメールフラグ
+    private String status;              // 送信ステータス
+    private String errorMessage;        // エラーメッセージ
+    private LocalDateTime sentAt;       // 送信日時
+    private LocalDateTime createdAt;    // 作成日時
+    private LocalDateTime updatedAt;    // 更新日時
+    private Integer version;            // バージョン
 }

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.adminapp.mapper.MailLogSearchMapper">
+<mapper namespace="com.example.adminapp.mapper.MailSearchMapper">
 
-    <resultMap id="MailLogSummaryResultMap" type="com.example.adminapp.service.mail.dto.MailLogSummaryDto">
+    <resultMap id="MailSendListResultMap" type="com.example.adminapp.service.mail.dto.MailSendListDto">
         <id property="id" column="id"/>
         <result property="toAddress" column="to_address"/>
         <result property="ccAddress" column="cc_address"/>
@@ -58,7 +58,7 @@
     </select>
 
     <!-- findByCondition: 条件とページング指定でサマリ一覧を取得する -->
-    <select id="findByCondition" resultMap="MailLogSummaryResultMap">
+    <select id="findByCondition" resultMap="MailSendListResultMap">
         SELECT
         <include refid="MailLogSummaryColumns" />
         FROM public.mail_log

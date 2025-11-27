@@ -19,9 +19,13 @@
     "PATH": "C:\\work\\java\\jdk-21.0.9\\bin;${env:PATH}"
   },
   "editor.fontFamily": "'MS Mincho', 'ＭＳ 明朝', monospace",
-  "editor.fontSize": 16,
+  "editor.fontSize": 14,
   "editor.fontLigatures": false,
   "editor.scrollBeyondLastLine": false,
   "editor.stickyScroll.enabled": false,
   "java.configuration.updateBuildConfiguration": "interactive",
+  "[java]": {
+    "editor.inlayHints.parameterNames.enabled": "none",
+    "editor.inlayHints.enabled": "off",
+  }
 }
