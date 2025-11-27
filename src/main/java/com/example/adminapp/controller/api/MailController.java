@@ -41,7 +41,7 @@ public class MailController {
     /**
      * 送信処理
      * @param params 入力値
-     * @return 検索結果
+     * @return 送信結果
      */
     @PostMapping("/admin/api/mail/send")
     public ResponseEntity<Map<String, Object>> sendMail(@RequestParam Map<String, String> params) {

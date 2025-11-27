@@ -15,7 +15,7 @@ public class AdminController {
    * @param model Model
    * @return layout.html + dashboard.html
    */
-  @GetMapping({"/", "/admin/dashboard"})
+  @GetMapping({"/", "/admin", "/admin/dashboard"})
   public String dashboard(Model model) {
     return render(model, "Dashboard", "dashboard", "dashboard");
   }
