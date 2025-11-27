@@ -98,7 +98,7 @@ public class MailSearchService {
         boolean hasPrevious = page > 0;
         boolean hasNext = page + 1 < totalpage;
         rtn.setItems(items);
-        rtn.setTotalCount(totalsize);
+        rtn.setTotalSize(totalsize);
         rtn.setSize(size);
         rtn.setTotalPages(totalpage);
         rtn.setPage(page);
@@ -109,8 +109,8 @@ public class MailSearchService {
 
     /**
      * 総頁数変換処理
-     * @param totalCount 総件数
-     * @param size       件数
+     * @param totalsize 総件数
+     * @param size      件数
      * @return 総頁数
      */
     private int getTotalPage(long totalsize, int size) {

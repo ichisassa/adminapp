@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  */
 public class MailSearchResponseDto {
     private List<MailSendListDto> items; // 検索結果
-    private long totalCount;             // 総件数
+    private long totalSize;             // 総件数
     private int  totalPages;             // 総頁数
     private int page;                    // 頁数
     private int size;                    // 件数
