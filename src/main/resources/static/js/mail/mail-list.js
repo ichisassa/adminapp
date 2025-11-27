@@ -227,7 +227,7 @@ class MailLogListPage {
     }
     this.paginationContainer.innerHTML = '';
 
-    const totalPages = data.totalPages > 0 ? data.totalPages : Math.max(1, Math.ceil(data.totalCount / data.size));
+    const totalPages = data.totalPages > 0 ? data.totalPages : Math.max(1, Math.ceil(data.totalSize / data.size));
     const currentPage = data.page + 1;
 
     const appendPageItem = (label, page, disabled = false, active = false) => {
@@ -266,13 +266,16 @@ class MailLogListPage {
       return;
     }
     const itemCount = Array.isArray(data.items) ? data.items.length : 0;
-    if (data.totalCount === 0 || itemCount === 0) {
+    const totalCount = typeof data.totalSize === 'number' ? data.totalSize : 0;
+    const size = typeof data.size === 'number' && data.size > 0 ? data.size : DEFAULT_PAGE_SIZE;
+    const pageIndex = typeof data.page === 'number' && data.page >= 0 ? data.page : 0;
+    if (totalCount === 0 || itemCount === 0) {
       this.summaryElement.textContent = '該当するデータがありません。';
       return;
     }
-    const start = (data.page * data.size) + 1;
-    const end = Math.min(start + itemCount - 1, data.totalCount);
-    this.summaryElement.textContent = `全 ${data.totalCount} 件中 ${start}〜${end} 件を表示`;
+    const start = (pageIndex * size) + 1;
+    const end = Math.min(start + itemCount - 1, totalCount);
+    this.summaryElement.textContent = `全 ${totalCount} 件中 ${start}〜${end} 件を表示`;
   }
 
   resolveStatusBadgeClass(status) {
