@@ -9,7 +9,7 @@
     this.sendButton = null;
     this.messageArea = null;
     this.messageBaseClass = '';
-    this.endpoint = '/api/admin/mail/send';
+    this.endpoint = '/admin/api/mail/send';
     this.fields = {};
   }
 

@@ -13,7 +13,7 @@
       padding-left: 30px !important;
     }
   </style>
-  <a th:href="@{/dashboard}" class="brand-link">
+  <a th:href="@{/admin/dashboard}" class="brand-link">
     <span class="brand-text font-weight-light" th:text="${@environment.getProperty('app.title')}"></span>
   </a>
 
@@ -34,7 +34,7 @@
                   mailSendActive=${currentPath == '/admin/mail/send' or activePage == 'mail-send'}">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
-          <a th:href="@{/dashboard}"
+          <a th:href="@{/admin/dashboard}"
              class="nav-link"
              th:classappend="${activePage} == 'dashboard' ? ' active' : ''">
             <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -71,7 +71,7 @@
           </ul>
         </li>
         <li class="nav-item">
-          <a th:href="@{/profile}"
+          <a th:href="@{/admin/profile}"
              class="nav-link"
              th:classappend="${activePage} == 'profile' ? ' active' : ''">
             <i class="nav-icon fas fa-user"></i>
@@ -79,7 +79,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a th:href="@{/settings}"
+          <a th:href="@{/admin/settings}"
              class="nav-link"
              th:classappend="${activePage} == 'settings' ? ' active' : ''">
             <i class="nav-icon fas fa-cog"></i>
@@ -87,7 +87,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a th:href="@{/reports}"
+          <a th:href="@{/admin/reports}"
              class="nav-link"
              th:classappend="${activePage} == 'reports' ? ' active' : ''">
             <i class="nav-icon fas fa-chart-bar"></i>

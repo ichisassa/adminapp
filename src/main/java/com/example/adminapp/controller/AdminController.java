@@ -15,7 +15,7 @@ public class AdminController {
    * @param model Model
    * @return layout.html + dashboard.html
    */
-  @GetMapping({"/", "/dashboard"})
+  @GetMapping({"/", "/admin/dashboard"})
   public String dashboard(Model model) {
     return render(model, "Dashboard", "dashboard", "dashboard");
   }
@@ -25,7 +25,7 @@ public class AdminController {
    * @param model Model
    * @return layout.html + profile.html
    */
-  @GetMapping("/profile")
+  @GetMapping("/admin/profile")
   public String profile(Model model) {
     return render(model, "Profile", "profile", "profile");
   }
@@ -35,7 +35,7 @@ public class AdminController {
    * @param model Model
    * @return layout.html + settings.html
    */
-  @GetMapping("/settings")
+  @GetMapping("/admin/settings")
   public String settings(Model model) {
     return render(model, "Settings", "settings", "settings");
   }
@@ -45,7 +45,7 @@ public class AdminController {
    * @param model Model
    * @return layout.html + reports.html
    */
-  @GetMapping("/reports")
+  @GetMapping("/admin/reports")
   public String reports(Model model) {
     return render(model, "Reports", "reports", "reports");
   }

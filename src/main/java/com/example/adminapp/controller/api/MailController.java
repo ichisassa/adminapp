@@ -33,7 +33,7 @@ public class MailController {
      * @param params 入力値
      * @return 検索結果
      */
-    @GetMapping("/api/admin/mail/logs")
+    @GetMapping("/admin/api/mail/list")
     public MailSearchResponseDto search(@RequestParam Map<String, String> params) {
         return search.search(params);
     }
@@ -43,7 +43,7 @@ public class MailController {
      * @param params 入力値
      * @return 検索結果
      */
-    @PostMapping("/api/admin/mail/send")
+    @PostMapping("/admin/api/mail/send")
     public ResponseEntity<Map<String, Object>> sendMail(@RequestParam Map<String, String> params) {
         send.send(params);
         return ResponseEntity.ok(Map.of(

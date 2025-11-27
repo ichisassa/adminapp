@@ -1,4 +1,4 @@
-const API_ENDPOINT = '/api/admin/mail/logs';
+const API_ENDPOINT = '/admin/api/mail/list';
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGINATION_DISPLAY = 5;
