@@ -1,8 +1,12 @@
 package com.example.adminapp.controller.api;
 
 import com.example.adminapp.service.mail.MailSearchService;
+import com.example.adminapp.service.mail.MailSendService;
 import com.example.adminapp.service.mail.dto.MailSearchResponseDto;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
@@ -13,13 +17,15 @@ import java.util.Map;
 @RestController
 public class MailController {
 
-    private final MailSearchService service;
+    private final MailSearchService search;
+    private final MailSendService   send;
 
     /**
      * constructor
      */
-    public MailController(MailSearchService service) {
-        this.service = service;
+    public MailController(MailSearchService search, MailSendService send) {
+        this.search = search;
+        this.send = send;
     }
 
     /**
@@ -29,7 +35,20 @@ public class MailController {
      */
     @GetMapping("/api/admin/mail/logs")
     public MailSearchResponseDto search(@RequestParam Map<String, String> params) {
-        return service.search(params);
+        return search.search(params);
     }
 
+    /**
+     * 送信処理
+     * @param params 入力値
+     * @return 検索結果
+     */
+    @PostMapping("/api/admin/mail/send")
+    public ResponseEntity<Map<String, Object>> sendMail(@RequestParam Map<String, String> params) {
+        send.send(params);
+        return ResponseEntity.ok(Map.of(
+                "success", Boolean.TRUE,
+                "message", send.getSuccessMessage()
+        ));
+    }
 }
