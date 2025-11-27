@@ -73,6 +73,12 @@
           <h3 class="card-title mb-0 text-sm">メール一覧</h3>
         </div>
         <div class="card-body p-2">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2">
+            <span class="text-sm text-muted mb-2 mb-md-0" id="mailLogSummary">検索結果を読み込んでいます...</span>
+            <nav aria-label="Mail log pagination" class="mb-0">
+              <ul class="pagination pagination-sm mb-0" id="mailLogPagination"></ul>
+            </nav>
+          </div>
           <div class="table-responsive">
             <table class="table table-striped table-hover table-sm text-sm mb-0" id="mailLogTable">
               <thead class="thead-light text-nowrap">
@@ -95,18 +101,6 @@
               </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-        <div class="card-footer py-1">
-          <div class="row align-items-center">
-            <div class="col-md-6 text-sm mb-1 mb-md-0">
-              <span class="text-muted" id="mailLogSummary">検索結果を読み込んでいます...</span>
-            </div>
-            <div class="col-md-6">
-              <nav aria-label="Mail log pagination">
-                <ul class="pagination pagination-sm justify-content-md-end mb-0" id="mailLogPagination"></ul>
-              </nav>
-            </div>
           </div>
         </div>
       </div>

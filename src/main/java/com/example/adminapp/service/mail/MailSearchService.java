@@ -22,9 +22,8 @@ public class MailSearchService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
 
-    // Max頁、Max件数
-    private static final int DEFAULT_PAGE_INDEX = 0;
-    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE = 0;  // 頁初期値
+    private static final int DEFAULT_SIZE = 20; // 件数初期値
 
     // MyBatis(Mapper)
     private final MailSearchMapper mapper;
@@ -41,18 +40,25 @@ public class MailSearchService {
      * @param params 入力値
      * @return 検索結果
      */
-    public MailSearchResponseDto search(Map<String, String> rawParams) {
-        MailSearchConditionDto condition = buildCondition(rawParams);
-        Paging paging = normalizePaging(condition.getPage(), condition.getSize());
-        condition.setPage(paging.page());
-        condition.setSize(paging.size());
+    public MailSearchResponseDto search(Map<String, String> params) {
 
-        long totalCount = mapper.countByCondition(condition);
-        List<MailSendListDto> items = totalCount == 0
+        MailSearchConditionDto condition = buildCondition(params);
+        Integer page = condition.getPage();
+        Integer size = condition.getSize();
+
+        long totalsize = mapper.countByCondition(condition);
+        int totalpage  = getTotalPage(totalsize, size);
+
+        if (totalpage > 0 && page >= totalpage) {
+            page = totalpage - 1;
+            condition.setPage(page);
+        }
+
+        List<MailSendListDto> items = totalsize == 0
                 ? Collections.emptyList()
-                : mapper.findByCondition(condition, paging.offset(), paging.size());
+                : mapper.findByCondition(condition, page * size, size);
 
-        return buildResponse(items, totalCount, paging);
+        return buildResponse(items, totalsize, size, totalpage, page);
     }
 
     /**
@@ -61,76 +67,57 @@ public class MailSearchService {
      * @return 検索条件
      */
     private MailSearchConditionDto buildCondition(Map<String, String> params) {
-        MailSearchConditionDto condition = new MailSearchConditionDto();
-        condition.setSentAtFrom(parseDateTime(params, "sentAtFrom"));
-        condition.setSentAtTo(parseDateTime(params, "sentAtTo"));
-        condition.setStatus(extract(params, "status"));
-        condition.setToAddress(extract(params, "toAddress"));
-        condition.setSubjectKeyword(resolveSubjectKeyword(params));
-        condition.setPage(parsePage(params));
-        condition.setSize(parseInteger(params, "size"));
-        return condition;
-    }
-
-    /**
-     * 頁、件数正規化処理
-     * @param page 頁数
-     * @param size 件数
-     * @return 簡易クラス
-     */
-    private Paging normalizePaging(Integer page, Integer size) {
-
-        // 入力値	    → 頁数
-        // null	        → DEFAULT_PAGE_INDEX
-        //  0           → 0
-        // 10           → 10
-        // -1       	→ DEFAULT_PAGE_INDEX
-        int normalizedPage = Optional.ofNullable(page).filter(p -> p >= 0).orElse(DEFAULT_PAGE_INDEX);
-
-        // 入力値	    → 件数
-        // null	        → DEFAULT_PAGE_INDEX
-        // 0           	→ DEFAULT_PAGE_INDEX
-        // 10           → 10
-        // -1           → DEFAULT_PAGE_INDEX
-        int normalizedSize = Optional.ofNullable(size).filter(s -> s != null && s > 0).orElse(DEFAULT_PAGE_SIZE);
-
-        return new Paging(normalizedPage, normalizedSize);
+        MailSearchConditionDto dto = new MailSearchConditionDto();
+        dto.setSentAtFrom(parseDateTime(params, "sentAtFrom"));
+        dto.setSentAtTo(parseDateTime(params, "sentAtTo"));
+        dto.setStatus(getString(params, "status"));
+        dto.setToAddress(getString(params, "toAddress"));
+        dto.setSubjectKeyword(resolveSubjectKeyword(params));
+        dto.setPage(getPage(params));
+        dto.setSize(getSize(params));
+        return dto;
     }
 
     /**
      * 検索結果生成処理
-     * @param items      Record
-     * @param totalCount 総件数
-     * @param paging     簡易クラス(頁、件数)
+     * @param items      SQL実行結果
+     * @param totalsize  総件数
+     * @param size       件数
+     * @param totalpage  総頁数
+     * @param page       頁数
      * @return 検索結果
      */
-    private MailSearchResponseDto buildResponse(List<MailSendListDto> items, long totalCount, Paging paging) {
-        int totalPages = paging.size() == 0 ? 0 : (int) Math.ceil((double) totalCount / paging.size());
-        boolean hasPrevious = paging.page() > 0;
-        boolean hasNext = paging.page() + 1 < totalPages;
-        return new MailSearchResponseDto(
-                items,
-                totalCount,
-                paging.page(),
-                paging.size(),
-                totalPages,
-                hasNext,
-                hasPrevious
-        );
+    private MailSearchResponseDto buildResponse(
+        List<MailSendListDto> items,
+        long totalsize,
+        int  size,
+        int  totalpage,
+        int  page)
+    {
+        MailSearchResponseDto rtn = new MailSearchResponseDto();
+        boolean hasPrevious = page > 0;
+        boolean hasNext = page + 1 < totalpage;
+        rtn.setItems(items);
+        rtn.setTotalCount(totalsize);
+        rtn.setSize(size);
+        rtn.setTotalPages(totalpage);
+        rtn.setPage(page);
+        rtn.setHasNext(hasNext);
+        rtn.setHasPrevious(hasPrevious);
+        return rtn;
     }
 
     /**
-     * 件名変換処理
-     * @param params 入力値
-     * @return 件名
+     * 総頁数変換処理
+     * @param totalCount 総件数
+     * @param size       件数
+     * @return 総頁数
      */
-    private String resolveSubjectKeyword(Map<String, String> params) {
-        // 件名 と 件名(KeyWord) のどちらか入力された方を優先
-        String keyword = extract(params, "subjectKeyword");
-        if (keyword != null) {
-            return keyword;
+    private int getTotalPage(long totalsize, int size) {
+        if (totalsize == 0) {
+            return 0;
         }
-        return extract(params, "subject");
+        return (int) Math.ceil((double) totalsize / size);
     }
 
     /**
@@ -138,15 +125,25 @@ public class MailSearchService {
      * @param params 入力値
      * @return 頁数
      */
-    private Integer parsePage(Map<String, String> params) {
-        // 外から受け取った頁番号（1 始まり）を
-        // 内部用の 0 始まりに変換し、不正な値を 0 に補正する処理
-        Integer raw = parseInteger(params, "page");
-        if (raw == null) {
-            return null;
+    private Integer getPage(Map<String, String> params) {
+        Integer page = parseInteger(params, "page");
+        if (page == null) {
+            return DEFAULT_PAGE;
         }
-        int zeroBased = raw - 1;
-        return Math.max(zeroBased, DEFAULT_PAGE_INDEX);
+        return Math.max(page - 1, DEFAULT_PAGE);
+    }
+
+    /**
+     * 件数変換処理
+     * @param params 入力値
+     * @return 頁数
+     */
+    private Integer getSize(Map<String, String> params) {
+        Integer size = parseInteger(params, "size");
+        if (size == null) {
+            return DEFAULT_SIZE;
+        }
+        return Math.max(size, DEFAULT_SIZE);
     }
 
     /**
@@ -158,7 +155,7 @@ public class MailSearchService {
     private Integer parseInteger(Map<String, String> params, String key) {
         Integer rtn = null;
         try {
-            String value = extract(params, key);
+            String value = getString(params, key);
             if (value != null) {
                 rtn = Integer.valueOf(value);
             }
@@ -176,7 +173,7 @@ public class MailSearchService {
     private LocalDateTime parseDateTime(Map<String, String> params, String key) {
         LocalDateTime rtn = null;
         try {
-            String value = extract(params, key);
+            String value = getString(params, key);
             if (value != null) {
                 rtn = LocalDateTime.parse(value, DATE_TIME_FORMATTER);
             }
@@ -186,12 +183,25 @@ public class MailSearchService {
     }
 
     /**
-     * 入力値変換処理
+     * 件名変換処理
+     * @param params 入力値
+     * @return 件名
+     */
+    private String resolveSubjectKeyword(Map<String, String> params) {
+        String keyword = getString(params, "subjectKeyword");
+        if (keyword != null) {
+            return keyword;
+        }
+        return getString(params, "subject");
+    }
+
+    /**
+     * 入力値取得処理
      * @param params 入力値
      * @param key    Key値
-     * @return 文字列 or Null
+     * @return 入力値
      */
-    private String extract(Map<String, String> params, String key) {
+    private String getString(Map<String, String> params, String key) {
         // 入力値        → 変換値
         // "abc"	     → "abc"
         // " abc "	     → "abc"
@@ -201,21 +211,7 @@ public class MailSearchService {
         // Key無し  	 → null
         return Optional.ofNullable(params.get(key))
                 .map(String::trim)
-                .filter(v -> !v.isEmpty())
+                .filter(value -> !value.isEmpty())
                 .orElse(null);
-    }
-
-    /**
-     * 簡易クラス生成処理
-     * @param page 頁数
-     * @param size 件数
-     * @return 簡易クラス
-     */
-    private record Paging(int page, int size) {
-        // 頁番号（page）と件数（size）を1つの値オブジェクトに集約し、
-        // 頁検索するときの offset を計算して返却する
-        int offset() {
-            return page * size;
-        }
     }
 }
