@@ -1,230 +1,218 @@
-(function () {
-  'use strict';
-
-  function MailSendPage() {
-    this.form = null;
-    this.sendButton = null;
-    this.messageArea = null;
-    this.messageBaseClass = '';
-    this.endpoint = '/admin/api/mail/send';
-    this.fields = {};
-    this.fieldErrorAreas = {};
-  }
-
-  MailSendPage.prototype.init = function init() {
-    this.cacheElements();
-    this.registerEvents();
-  };
-
-  MailSendPage.prototype.cacheElements = function cacheElements() {
-    this.form = document.getElementById('mailSendForm');
-    this.sendButton = document.getElementById('btnSendMail');
-    this.messageArea = document.getElementById('sendMessage');
-    this.messageBaseClass = this.messageArea && this.messageArea.className ? this.messageArea.className : '';
-    this.fields = {
-      toAddress: document.getElementById('toAddress'),
-      ccAddress: document.getElementById('ccAddress'),
-      bccAddress: document.getElementById('bccAddress'),
-      subject: document.getElementById('subject'),
-      body: document.getElementById('body'),
-      isHtml: document.getElementById('isHtml')
-    };
-    this.fieldErrorAreas = {
-      toAddress: document.getElementById('toAddressError'),
-      ccAddress: document.getElementById('ccAddressError'),
-      bccAddress: document.getElementById('bccAddressError'),
-      subject: document.getElementById('subjectError'),
-      body: document.getElementById('bodyError'),
-      isHtml: document.getElementById('isHtmlError')
-    };
-  };
-
-  MailSendPage.prototype.registerEvents = function registerEvents() {
-    var handler = this.handleSendClick.bind(this);
-    if (this.form) {
-      this.form.addEventListener('submit', handler);
+"use strict";
+// This file is generated from src/main/ts/mail/mail-send.ts
+class MailSendPage {
+    constructor() {
+        this.form = null;
+        this.sendButton = null;
+        this.messageArea = null;
+        this.messageBaseClass = '';
+        this.endpoint = '/admin/api/mail/send';
+        this.fields = {
+            toAddress: null,
+            ccAddress: null,
+            bccAddress: null,
+            subject: null,
+            body: null,
+            isHtml: null
+        };
+        this.fieldErrorAreas = {
+            toAddress: null,
+            ccAddress: null,
+            bccAddress: null,
+            subject: null,
+            body: null,
+            isHtml: null
+        };
     }
-    if (this.sendButton) {
-      this.sendButton.addEventListener('click', handler);
+    init() {
+        this.cacheElements();
+        this.registerEvents();
     }
-  };
-
-  MailSendPage.prototype.handleSendClick = function handleSendClick(event) {
-    if (event) {
-      event.preventDefault();
+    cacheElements() {
+        this.form = document.getElementById('mailSendForm');
+        this.sendButton = document.getElementById('btnSendMail');
+        this.messageArea = document.getElementById('sendMessage');
+        this.messageBaseClass = this.messageArea ? this.messageArea.className : '';
+        this.fields = {
+            toAddress: document.getElementById('toAddress'),
+            ccAddress: document.getElementById('ccAddress'),
+            bccAddress: document.getElementById('bccAddress'),
+            subject: document.getElementById('subject'),
+            body: document.getElementById('body'),
+            isHtml: document.getElementById('isHtml')
+        };
+        this.fieldErrorAreas = {
+            toAddress: document.getElementById('toAddressError'),
+            ccAddress: document.getElementById('ccAddressError'),
+            bccAddress: document.getElementById('bccAddressError'),
+            subject: document.getElementById('subjectError'),
+            body: document.getElementById('bodyError'),
+            isHtml: document.getElementById('isHtmlError')
+        };
     }
-    this.submitForm();
-  };
-
-  MailSendPage.prototype.submitForm = function submitForm() {
-    var payload = this.buildPayload();
-    if (!payload) {
-      return;
+    registerEvents() {
+        const handler = (event) => this.handleSendClick(event);
+        if (this.form) {
+            this.form.addEventListener('submit', handler);
+        }
+        if (this.sendButton) {
+            this.sendButton.addEventListener('click', handler);
+        }
     }
-
-    var self = this;
-    this.resetFeedback();
-    this.toggleSending(true);
-    this.showMessage('送信処理中です...', 'text-info');
-
-    var finalize = function finalize() {
-      self.toggleSending(false);
-    };
-
-    var formBody = this.buildFormBody(payload);
-
-    fetch(this.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: 'same-origin',
-      body: formBody
-    })
-      .then(function (response) {
-        return response.json().catch(function () {
-          return {};
-        }).then(function (body) {
-          return {
-            ok: response.ok,
-            body: body
-          };
+    handleSendClick(event) {
+        event.preventDefault();
+        void this.submitForm();
+    }
+    async submitForm() {
+        const payload = this.buildPayload();
+        if (!payload) {
+            return;
+        }
+        this.resetFeedback();
+        this.toggleSending(true);
+        this.showMessage('送信処理中です...', 'text-info');
+        try {
+            const formBody = this.buildFormBody(payload);
+            const response = await fetch(this.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: formBody
+            });
+            let body = {};
+            try {
+                body = await response.json();
+            }
+            catch (error) {
+                body = {};
+            }
+            const validatedFieldErrors = body.fieldErrors && typeof body.fieldErrors === 'object'
+                ? body.fieldErrors
+                : {};
+            this.renderFieldErrors(validatedFieldErrors);
+            const fallbackMessage = response.ok ? '送信しました。' : '送信に失敗しました。';
+            const message = typeof body.message === 'string' ? body.message : fallbackMessage;
+            if (response.ok && body.success) {
+                this.showMessage(message, 'text-success');
+                this.resetForm();
+            }
+            else {
+                const composed = this.composeGlobalMessage(message, body.globalErrors);
+                this.showMessage(composed, 'text-danger');
+            }
+        }
+        catch (error) {
+            this.showMessage('通信エラーが発生しました。時間をおいて再度お試しください。', 'text-danger');
+        }
+        finally {
+            this.toggleSending(false);
+        }
+    }
+    buildPayload() {
+        const { toAddress, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
+        if (!toAddress || !subject || !body) {
+            return null;
+        }
+        return {
+            toAddress: this.getFieldValue(toAddress),
+            ccAddress: this.getFieldValue(ccAddress),
+            bccAddress: this.getFieldValue(bccAddress),
+            subject: this.getFieldValue(subject),
+            body: this.getFieldValue(body),
+            isHtml: !!(isHtml && isHtml.checked)
+        };
+    }
+    buildFormBody(payload) {
+        const params = new URLSearchParams();
+        Object.entries(payload).forEach(([key, value]) => {
+            if (typeof value === 'boolean') {
+                params.append(key, value ? 'true' : 'false');
+            }
+            else if (value == null) {
+                params.append(key, '');
+            }
+            else {
+                params.append(key, value);
+            }
         });
-      })
-      .then(function (result) {
-        var body = result.body || {};
-        self.renderFieldErrors(body.fieldErrors || {});
-        var message = body.message || (result.ok ? '送信しました。' : '送信に失敗しました。');
-        if (result.ok && body.success) {
-          self.showMessage(message, 'text-success');
-          self.resetForm();
-        } else {
-          var composed = self.composeGlobalMessage(message, body.globalErrors);
-          self.showMessage(composed, 'text-danger');
+        return params.toString();
+    }
+    getFieldValue(element) {
+        if (!element) {
+            return '';
         }
-        finalize();
-      })
-      .catch(function () {
-        self.showMessage('通信エラーが発生しました。時間をおいて再度お試しください。', 'text-danger');
-        finalize();
-      });
-  };
-
-  MailSendPage.prototype.buildPayload = function buildPayload() {
-    var fields = this.fields;
-    return {
-      toAddress: fields.toAddress ? this.getFieldValue(fields.toAddress) : '',
-      ccAddress: fields.ccAddress ? this.getFieldValue(fields.ccAddress) : '',
-      bccAddress: fields.bccAddress ? this.getFieldValue(fields.bccAddress) : '',
-      subject: fields.subject ? this.getFieldValue(fields.subject) : '',
-      body: fields.body ? this.getFieldValue(fields.body) : '',
-      isHtml: !!(fields.isHtml && fields.isHtml.checked)
-    };
-  };
-
-  MailSendPage.prototype.buildFormBody = function buildFormBody(payload) {
-    var params = new URLSearchParams();
-    Object.keys(payload).forEach(function (key) {
-      var value = payload[key];
-      if (typeof value === 'boolean') {
-        params.append(key, value ? 'true' : 'false');
-      } else if (value === null || value === undefined) {
-        params.append(key, '');
-      } else {
-        params.append(key, value);
-      }
-    });
-    return params.toString();
-  };
-
-  MailSendPage.prototype.getFieldValue = function getFieldValue(element) {
-    if (!element) {
-      return '';
+        const value = element.value == null ? '' : element.value;
+        return typeof value.trim === 'function' ? value.trim() : value;
     }
-    var value = element.value || '';
-    if (typeof value.trim === 'function') {
-      return value.trim();
-    }
-    return value;
-  };
-
-  MailSendPage.prototype.toggleSending = function toggleSending(isSending) {
-    if (!this.sendButton) {
-      return;
-    }
-    this.sendButton.disabled = isSending;
-    this.sendButton.classList.toggle('disabled', isSending);
-  };
-
-  MailSendPage.prototype.resetForm = function resetForm() {
-    if (this.form) {
-      this.form.reset();
-    }
-    this.clearFieldErrors();
-  };
-
-  MailSendPage.prototype.showMessage = function showMessage(message, stateClass) {
-    if (!this.messageArea) {
-      return;
-    }
-    var className = this.messageBaseClass || '';
-    if (stateClass) {
-      className = className ? className + ' ' + stateClass : stateClass;
-    }
-    this.messageArea.className = className;
-    this.messageArea.textContent = message;
-  };
-
-  MailSendPage.prototype.resetFeedback = function resetFeedback() {
-    this.clearFieldErrors();
-    this.showMessage('', '');
-  };
-
-  MailSendPage.prototype.clearFieldErrors = function clearFieldErrors() {
-    var keys = Object.keys(this.fieldErrorAreas || {});
-    for (var i = 0; i < keys.length; i += 1) {
-      var area = this.fieldErrorAreas[keys[i]];
-      if (area) {
-        area.textContent = '';
-      }
-    }
-  };
-
-  MailSendPage.prototype.renderFieldErrors = function renderFieldErrors(fieldErrors) {
-    this.clearFieldErrors();
-    if (!fieldErrors) {
-      return;
-    }
-    var keys = Object.keys(fieldErrors);
-    for (var i = 0; i < keys.length; i += 1) {
-      var field = keys[i];
-      var message = fieldErrors[field];
-      var target = this.fieldErrorAreas[field];
-      if (!target) {
-        continue;
-      }
-      target.textContent = message || '';
-    }
-  };
-
-  MailSendPage.prototype.composeGlobalMessage = function composeGlobalMessage(message, globalErrors) {
-    var lines = [];
-    if (message) {
-      lines.push(message);
-    }
-    if (Array.isArray(globalErrors) && globalErrors.length > 0) {
-      for (var i = 0; i < globalErrors.length; i += 1) {
-        if (globalErrors[i]) {
-          lines.push(globalErrors[i]);
+    toggleSending(isSending) {
+        if (!this.sendButton) {
+            return;
         }
-      }
+        this.sendButton.disabled = isSending;
+        this.sendButton.classList.toggle('disabled', isSending);
     }
-    return lines.join('\n');
-  };
-
-  document.addEventListener('DOMContentLoaded', function onReady() {
-    var page = new MailSendPage();
+    resetForm() {
+        if (this.form) {
+            this.form.reset();
+        }
+        this.clearFieldErrors();
+    }
+    showMessage(message, stateClass) {
+        if (!this.messageArea) {
+            return;
+        }
+        let className = this.messageBaseClass;
+        if (stateClass) {
+            className = className ? `${className} ${stateClass}` : stateClass;
+        }
+        this.messageArea.className = className;
+        this.messageArea.textContent = message;
+    }
+    resetFeedback() {
+        this.clearFieldErrors();
+        this.showMessage('', '');
+    }
+    clearFieldErrors() {
+        Object.values(this.fieldErrorAreas).forEach((area) => {
+            if (area) {
+                area.textContent = '';
+            }
+        });
+    }
+    renderFieldErrors(fieldErrors) {
+        this.clearFieldErrors();
+        if (!fieldErrors) {
+            return;
+        }
+        Object.entries(fieldErrors).forEach(([field, message]) => {
+            const target = this.fieldErrorAreas[field];
+            if (target) {
+                target.textContent = typeof message === 'string' ? message : '';
+            }
+        });
+    }
+    composeGlobalMessage(message, globalErrors) {
+        const lines = [];
+        if (message) {
+            lines.push(message);
+        }
+        if (Array.isArray(globalErrors)) {
+            globalErrors.forEach((error) => {
+                if (typeof error === 'string') {
+                    const trimmed = error.trim();
+                    if (trimmed) {
+                        lines.push(trimmed);
+                    }
+                }
+            });
+        }
+        return lines.join('\n');
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const page = new MailSendPage();
     page.init();
-  });
-}());
+});

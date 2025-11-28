@@ -192,7 +192,7 @@ class MailLogListPage {
    */
   private buildQueryParams(page: number): URLSearchParams {
     const params = new URLSearchParams();
-    const condition = this.lastCondition ?? this.collectSearchCondition();
+    const condition = this.lastCondition !== null ? this.lastCondition : this.collectSearchCondition();
 
     const append = (key: keyof MailLogSearchCondition, value: string) => {
       if (value) {
