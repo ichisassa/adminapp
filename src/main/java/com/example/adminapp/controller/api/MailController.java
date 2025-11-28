@@ -3,8 +3,8 @@ package com.example.adminapp.controller.api;
 import com.example.adminapp.service.mail.MailSearchService;
 import com.example.adminapp.service.mail.MailSendService;
 import com.example.adminapp.service.mail.dto.MailSearchResponseDto;
+import com.example.adminapp.service.mail.dto.MailSendResponseDto;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,11 +44,7 @@ public class MailController {
      * @return 送信結果
      */
     @PostMapping("/admin/api/mail/send")
-    public ResponseEntity<Map<String, Object>> sendMail(@RequestParam Map<String, String> params) {
-        send.send(params);
-        return ResponseEntity.ok(Map.of(
-                "success", Boolean.TRUE,
-                "message", send.getSuccessMessage()
-        ));
+    public MailSendResponseDto sendMail(@RequestParam Map<String, String> params) {
+        return send.send(params);
     }
 }

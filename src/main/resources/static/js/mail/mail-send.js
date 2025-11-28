@@ -1,9 +1,6 @@
 (function () {
   'use strict';
 
-  /**
-   * mail-send.js main class
-   */
   function MailSendPage() {
     this.form = null;
     this.sendButton = null;
@@ -11,6 +8,7 @@
     this.messageBaseClass = '';
     this.endpoint = '/admin/api/mail/send';
     this.fields = {};
+    this.fieldErrorAreas = {};
   }
 
   MailSendPage.prototype.init = function init() {
@@ -30,6 +28,14 @@
       subject: document.getElementById('subject'),
       body: document.getElementById('body'),
       isHtml: document.getElementById('isHtml')
+    };
+    this.fieldErrorAreas = {
+      toAddress: document.getElementById('toAddressError'),
+      ccAddress: document.getElementById('ccAddressError'),
+      bccAddress: document.getElementById('bccAddressError'),
+      subject: document.getElementById('subjectError'),
+      body: document.getElementById('bodyError'),
+      isHtml: document.getElementById('isHtmlError')
     };
   };
 
@@ -57,6 +63,7 @@
     }
 
     var self = this;
+    this.resetFeedback();
     this.toggleSending(true);
     this.showMessage('送信処理中です...', 'text-info');
 
@@ -64,14 +71,16 @@
       self.toggleSending(false);
     };
 
+    var formBody = this.buildFormBody(payload);
+
     fetch(this.endpoint, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'X-Requested-With': 'XMLHttpRequest'
       },
       credentials: 'same-origin',
-      body: JSON.stringify(payload)
+      body: formBody
     })
       .then(function (response) {
         return response.json().catch(function () {
@@ -85,12 +94,14 @@
       })
       .then(function (result) {
         var body = result.body || {};
+        self.renderFieldErrors(body.fieldErrors || {});
         var message = body.message || (result.ok ? '送信しました。' : '送信に失敗しました。');
         if (result.ok && body.success) {
           self.showMessage(message, 'text-success');
           self.resetForm();
         } else {
-          self.showMessage(message, 'text-danger');
+          var composed = self.composeGlobalMessage(message, body.globalErrors);
+          self.showMessage(composed, 'text-danger');
         }
         finalize();
       })
@@ -103,13 +114,28 @@
   MailSendPage.prototype.buildPayload = function buildPayload() {
     var fields = this.fields;
     return {
-      toAddress: toAddress,
+      toAddress: fields.toAddress ? this.getFieldValue(fields.toAddress) : '',
       ccAddress: fields.ccAddress ? this.getFieldValue(fields.ccAddress) : '',
       bccAddress: fields.bccAddress ? this.getFieldValue(fields.bccAddress) : '',
       subject: fields.subject ? this.getFieldValue(fields.subject) : '',
       body: fields.body ? this.getFieldValue(fields.body) : '',
       isHtml: !!(fields.isHtml && fields.isHtml.checked)
     };
+  };
+
+  MailSendPage.prototype.buildFormBody = function buildFormBody(payload) {
+    var params = new URLSearchParams();
+    Object.keys(payload).forEach(function (key) {
+      var value = payload[key];
+      if (typeof value === 'boolean') {
+        params.append(key, value ? 'true' : 'false');
+      } else if (value === null || value === undefined) {
+        params.append(key, '');
+      } else {
+        params.append(key, value);
+      }
+    });
+    return params.toString();
   };
 
   MailSendPage.prototype.getFieldValue = function getFieldValue(element) {
@@ -135,6 +161,7 @@
     if (this.form) {
       this.form.reset();
     }
+    this.clearFieldErrors();
   };
 
   MailSendPage.prototype.showMessage = function showMessage(message, stateClass) {
@@ -147,6 +174,53 @@
     }
     this.messageArea.className = className;
     this.messageArea.textContent = message;
+  };
+
+  MailSendPage.prototype.resetFeedback = function resetFeedback() {
+    this.clearFieldErrors();
+    this.showMessage('', '');
+  };
+
+  MailSendPage.prototype.clearFieldErrors = function clearFieldErrors() {
+    var keys = Object.keys(this.fieldErrorAreas || {});
+    for (var i = 0; i < keys.length; i += 1) {
+      var area = this.fieldErrorAreas[keys[i]];
+      if (area) {
+        area.textContent = '';
+      }
+    }
+  };
+
+  MailSendPage.prototype.renderFieldErrors = function renderFieldErrors(fieldErrors) {
+    this.clearFieldErrors();
+    if (!fieldErrors) {
+      return;
+    }
+    var keys = Object.keys(fieldErrors);
+    for (var i = 0; i < keys.length; i += 1) {
+      var field = keys[i];
+      var message = fieldErrors[field];
+      var target = this.fieldErrorAreas[field];
+      if (!target) {
+        continue;
+      }
+      target.textContent = message || '';
+    }
+  };
+
+  MailSendPage.prototype.composeGlobalMessage = function composeGlobalMessage(message, globalErrors) {
+    var lines = [];
+    if (message) {
+      lines.push(message);
+    }
+    if (Array.isArray(globalErrors) && globalErrors.length > 0) {
+      for (var i = 0; i < globalErrors.length; i += 1) {
+        if (globalErrors[i]) {
+          lines.push(globalErrors[i]);
+        }
+      }
+    }
+    return lines.join('\n');
   };
 
   document.addEventListener('DOMContentLoaded', function onReady() {

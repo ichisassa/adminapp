@@ -15,6 +15,7 @@
                     <input type="text" class="form-control" id="toAddress" name="toAddress"
                            placeholder="例）user@example.com, sample@example.com">
                     <small class="form-text text-muted">カンマ区切りで複数宛先を入力できます。</small>
+                    <div id="toAddressError" class="field-error text-danger small mt-1"></div>
                   </div>
 
                   <div class="form-group mb-3">
@@ -22,6 +23,7 @@
                     <input type="text" class="form-control" id="ccAddress" name="ccAddress"
                            placeholder="例）cc1@example.com, cc2@example.com">
                     <small class="form-text text-muted">カンマ区切りで複数宛先を入力できます。</small>
+                    <div id="ccAddressError" class="field-error text-danger small mt-1"></div>
                   </div>
 
                   <div class="form-group mb-3">
@@ -29,18 +31,21 @@
                     <input type="text" class="form-control" id="bccAddress" name="bccAddress"
                            placeholder="例）bcc1@example.com, bcc2@example.com">
                     <small class="form-text text-muted">カンマ区切りで複数宛先を入力できます。</small>
+                    <div id="bccAddressError" class="field-error text-danger small mt-1"></div>
                   </div>
 
                   <div class="form-group">
                     <label for="subject" class="mb-1 font-weight-bold" style="font-size: 0.9rem;">件名</label>
                     <input type="text" class="form-control" id="subject" name="subject"
                            placeholder="メールの件名を入力してください">
+                    <div id="subjectError" class="field-error text-danger small mt-1"></div>
                   </div>
 
                   <div class="form-group mb-0">
                     <label for="body" class="mb-1 font-weight-bold" style="font-size: 0.9rem;">本文</label>
                     <textarea class="form-control" id="body" name="body" rows="8"
                               placeholder="本文を入力してください（HTML送信時はタグ可）"></textarea>
+                    <div id="bodyError" class="field-error text-danger small mt-1"></div>
                   </div>
 
                   <div class="form-group mb-0 mt-3">
@@ -51,6 +56,7 @@
                       </label>
                     </div>
                     <small class="form-text text-muted">ON の場合、本文は HTML として扱われます。</small>
+                    <div id="isHtmlError" class="field-error text-danger small mt-1"></div>
                   </div>
                 </div>
 
