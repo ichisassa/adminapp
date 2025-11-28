@@ -1,5 +1,4 @@
 "use strict";
-// This file is generated from src/main/ts/mail/mail-list.ts
 const API_ENDPOINT = '/admin/api/mail/list';
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
@@ -13,16 +12,26 @@ class MailLogListPage {
         this.paginationContainer = null;
         this.summaryElement = null;
     }
+    /**
+     * 画面ロード時に必要な初期化をまとめて行う。
+     * DOM 要素のキャッシュ、イベント登録、初回検索を実行する。
+     */
     init() {
         this.cacheElements();
         this.registerEventHandlers();
         this.executeSearch(DEFAULT_PAGE);
     }
+    /**
+     * 描画に利用する主要な DOM 要素を取得し、プロパティへ保持する。
+     */
     cacheElements() {
         this.tableBody = document.getElementById('mailLogTableBody');
         this.paginationContainer = document.getElementById('mailLogPagination');
         this.summaryElement = document.getElementById('mailLogSummary');
     }
+    /**
+     * 検索ボタン・クリアボタン・ページネーションのイベントを登録する。
+     */
     registerEventHandlers() {
         const searchButton = document.getElementById('btnSearch');
         const clearButton = document.getElementById('btnClear');
@@ -36,15 +45,26 @@ class MailLogListPage {
             this.paginationContainer.addEventListener('click', (event) => this.handlePaginationClick(event));
         }
     }
+    /**
+     * 検索ボタンクリック時の処理。
+     * 現在のフォーム値を条件として保存し、1ページ目で検索する。
+     */
     handleSearchButton() {
         this.lastCondition = this.collectSearchCondition();
         this.executeSearch(DEFAULT_PAGE);
     }
+    /**
+     * 条件クリアボタンクリック時の処理。
+     * フォームをリセットし、初期条件で検索する。
+     */
     handleClearButton() {
         this.resetForm();
         this.lastCondition = this.collectSearchCondition();
         this.executeSearch(DEFAULT_PAGE);
     }
+    /**
+     * ページネーションのリンク押下時にページ番号を取得して再検索する。
+     */
     handlePaginationClick(event) {
         const target = event.target;
         if (!target) {
@@ -61,23 +81,35 @@ class MailLogListPage {
         }
         this.executeSearch(page);
     }
+    /**
+     * 各フォームから入力値を取得して検索条件オブジェクトを生成する。
+     */
     collectSearchCondition() {
         return {
             sentAtFrom: this.getInputValue('sentAtFrom'),
             sentAtTo: this.getInputValue('sentAtTo'),
             status: this.getSelectValue('status'),
             toAddress: this.getInputValue('toAddress'),
-            subject: this.getInputValue('subject')
+            subject: this.getInputValue('subject'),
         };
     }
+    /**
+     * 指定 ID のテキスト入力値をトリムして取得する。
+     */
     getInputValue(id) {
         const element = document.getElementById(id);
         return element ? element.value.trim() : '';
     }
+    /**
+     * 指定 ID のセレクトボックス値を取得する。
+     */
     getSelectValue(id) {
         const element = document.getElementById(id);
         return element ? element.value : '';
     }
+    /**
+     * 検索フォームを初期状態に戻す。
+     */
     resetForm() {
         const inputIds = ['sentAtFrom', 'sentAtTo', 'toAddress', 'subject'];
         inputIds.forEach((id) => {
@@ -91,18 +123,21 @@ class MailLogListPage {
             statusSelect.value = '';
         }
     }
+    /**
+     * 現在の条件と指定ページで検索 API を呼び出し、結果を画面に反映する。
+     */
     async executeSearch(page) {
         try {
             const params = this.buildQueryParams(page);
             const response = await fetch(`${API_ENDPOINT}?${params.toString()}`, {
                 headers: {
-                    'Accept': 'application/json'
-                }
+                    'Accept': 'application/json',
+                },
             });
             if (!response.ok) {
                 throw new Error(`HTTP error ${response.status}`);
             }
-            const data = await response.json();
+            const data = (await response.json());
             this.currentPage = page;
             this.renderTable(data.items);
             this.renderPagination(data);
@@ -113,6 +148,9 @@ class MailLogListPage {
             window.alert('検索中にエラーが発生しました。時間をおいて再度お試しください。');
         }
     }
+    /**
+     * フォーム条件とページ情報を組み合わせ、クエリ文字列を生成する。
+     */
     buildQueryParams(page) {
         const params = new URLSearchParams();
         const condition = this.lastCondition !== null ? this.lastCondition : this.collectSearchCondition();
@@ -130,6 +168,10 @@ class MailLogListPage {
         params.append('size', String(this.pageSize));
         return params;
     }
+    /**
+     * 検索結果の配列をもとに一覧テーブルを描画する。
+     * データが空の場合は空表示行を挿入する。
+     */
     renderTable(items) {
         if (!this.tableBody) {
             return;
@@ -158,6 +200,9 @@ class MailLogListPage {
             this.tableBody.appendChild(row);
         });
     }
+    /**
+     * 行頭のチェックボックスセルを作成する。
+     */
     createCheckboxCell() {
         const cell = document.createElement('td');
         cell.className = 'text-center';
@@ -166,11 +211,17 @@ class MailLogListPage {
         cell.appendChild(checkbox);
         return cell;
     }
+    /**
+     * 指定テキストを表示するセルを作成する。
+     */
     createTextCell(text) {
         const cell = document.createElement('td');
         cell.textContent = text;
         return cell;
     }
+    /**
+     * ステータス表示のバッジを含むセルを作成する。
+     */
     createStatusCell(status) {
         const cell = document.createElement('td');
         const span = document.createElement('span');
@@ -179,6 +230,9 @@ class MailLogListPage {
         cell.appendChild(span);
         return cell;
     }
+    /**
+     * 詳細・再送ボタンをまとめた操作セルを作成する。
+     */
     createActionCell(id) {
         const cell = document.createElement('td');
         cell.className = 'text-nowrap';
@@ -196,6 +250,9 @@ class MailLogListPage {
         cell.appendChild(resendButton);
         return cell;
     }
+    /**
+     * 総件数と現在ページからページネーションのリンク群を描画する。
+     */
     renderPagination(data) {
         if (!this.paginationContainer) {
             return;
@@ -231,6 +288,9 @@ class MailLogListPage {
         }
         appendPageItem('»', currentPage + 1, currentPage >= totalPages);
     }
+    /**
+     * 件数サマリのテキストを更新する。
+     */
     renderSummary(data) {
         if (!this.summaryElement) {
             return;
@@ -245,8 +305,11 @@ class MailLogListPage {
         }
         const start = (pageIndex * size) + 1;
         const end = Math.min(start + itemCount - 1, totalCount);
-        this.summaryElement.textContent = `全 ${totalCount} 件中 ${start}～${end} 件を表示`;
+        this.summaryElement.textContent = `全 ${totalCount} 件中 ${start}〜${end} 件を表示`;
     }
+    /**
+     * ステータス値に応じた Bootstrap バッジのクラス名を返す。
+     */
     resolveStatusBadgeClass(status) {
         const normalized = (status || '').toUpperCase();
         switch (normalized) {
@@ -262,6 +325,9 @@ class MailLogListPage {
                 return 'badge-secondary';
         }
     }
+    /**
+     * ISO 文字列などで渡された日時を「YYYY/MM/DD HH:mm」形式に整形する。
+     */
     formatDateTime(value) {
         if (!value) {
             return '-';
@@ -277,9 +343,15 @@ class MailLogListPage {
         const minutes = this.pad(date.getMinutes());
         return `${year}/${month}/${day} ${hours}:${minutes}`;
     }
+    /**
+     * 数値を2桁にゼロ埋めする。
+     */
     pad(value) {
         return value < 10 ? `0${value}` : `${value}`;
     }
+    /**
+     * エラーメッセージなどの長文を指定長で丸め、末尾に省略記号を付与する。
+     */
     truncate(value, length = 40) {
         if (!value) {
             return '-';
@@ -290,6 +362,7 @@ class MailLogListPage {
         return `${value.substring(0, length)}...`;
     }
 }
+/** DOM 準備完了後に一覧ページを初期化する。 */
 document.addEventListener('DOMContentLoaded', () => {
     const page = new MailLogListPage();
     page.init();

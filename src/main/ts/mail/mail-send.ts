@@ -1,7 +1,8 @@
-type MailFieldKey = 'toAddress' | 'ccAddress' | 'bccAddress' | 'subject' | 'body' | 'isHtml';
+type MailFieldKey = 'toAddress' | 'replyTo' | 'ccAddress' | 'bccAddress' | 'subject' | 'body' | 'isHtml';
 
 interface MailSendPayload {
   toAddress: string;
+  replyTo: string;
   ccAddress: string;
   bccAddress: string;
   subject: string;
@@ -25,6 +26,7 @@ class MailSendPage {
 
   private fields: Record<MailFieldKey, HTMLInputElement | HTMLTextAreaElement | null> = {
     toAddress: null,
+    replyTo: null,    
     ccAddress: null,
     bccAddress: null,
     subject: null,
@@ -34,6 +36,7 @@ class MailSendPage {
 
   private fieldErrorAreas: Partial<Record<MailFieldKey, HTMLElement | null>> = {
     toAddress: null,
+    replyTo: null,
     ccAddress: null,
     bccAddress: null,
     subject: null,
@@ -54,6 +57,7 @@ class MailSendPage {
 
     this.fields = {
       toAddress: document.getElementById('toAddress') as HTMLInputElement | null,
+      replyTo: document.getElementById('toAddress') as HTMLInputElement | null,
       ccAddress: document.getElementById('ccAddress') as HTMLInputElement | null,
       bccAddress: document.getElementById('bccAddress') as HTMLInputElement | null,
       subject: document.getElementById('subject') as HTMLInputElement | null,
@@ -63,6 +67,7 @@ class MailSendPage {
 
     this.fieldErrorAreas = {
       toAddress: document.getElementById('toAddressError'),
+      replyTo: document.getElementById('replyToError'),
       ccAddress: document.getElementById('ccAddressError'),
       bccAddress: document.getElementById('bccAddressError'),
       subject: document.getElementById('subjectError'),
@@ -136,13 +141,14 @@ class MailSendPage {
   }
 
   private buildPayload(): MailSendPayload | null {
-    const { toAddress, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
+    const { toAddress, replyTo, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
     if (!toAddress || !subject || !body) {
       return null;
     }
 
     return {
       toAddress: this.getFieldValue(toAddress),
+      replyTo: this.getFieldValue(toAddress),
       ccAddress: this.getFieldValue(ccAddress),
       bccAddress: this.getFieldValue(bccAddress),
       subject: this.getFieldValue(subject),

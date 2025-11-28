@@ -15,6 +15,11 @@ public enum MailSendField implements FormField {
     @EmailList(message = "宛先(To)の形式が不正です")
     TO("toAddress"),
 
+    @Required(message = "返信先は必須です")
+    @MaxLength(value = 1000, message = "返信先は1000文字以内で入力してください")
+    @EmailList(message = "返信先の形式が不正です")
+    REPLYTO("replyTo"),
+
     @MaxLength(value = 1000, message = "CC は1000文字以内で入力してください")
     @EmailList(message = "CC の形式が不正です")
     CC("ccAddress"),

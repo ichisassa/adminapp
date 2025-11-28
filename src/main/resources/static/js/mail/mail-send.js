@@ -1,5 +1,4 @@
 "use strict";
-// This file is generated from src/main/ts/mail/mail-send.ts
 class MailSendPage {
     constructor() {
         this.form = null;
@@ -9,19 +8,21 @@ class MailSendPage {
         this.endpoint = '/admin/api/mail/send';
         this.fields = {
             toAddress: null,
+            replyTo: null,
             ccAddress: null,
             bccAddress: null,
             subject: null,
             body: null,
-            isHtml: null
+            isHtml: null,
         };
         this.fieldErrorAreas = {
             toAddress: null,
+            replyTo: null,
             ccAddress: null,
             bccAddress: null,
             subject: null,
             body: null,
-            isHtml: null
+            isHtml: null,
         };
     }
     init() {
@@ -35,19 +36,21 @@ class MailSendPage {
         this.messageBaseClass = this.messageArea ? this.messageArea.className : '';
         this.fields = {
             toAddress: document.getElementById('toAddress'),
+            replyTo: document.getElementById('toAddress'),
             ccAddress: document.getElementById('ccAddress'),
             bccAddress: document.getElementById('bccAddress'),
             subject: document.getElementById('subject'),
             body: document.getElementById('body'),
-            isHtml: document.getElementById('isHtml')
+            isHtml: document.getElementById('isHtml'),
         };
         this.fieldErrorAreas = {
             toAddress: document.getElementById('toAddressError'),
+            replyTo: document.getElementById('replyToError'),
             ccAddress: document.getElementById('ccAddressError'),
             bccAddress: document.getElementById('bccAddressError'),
             subject: document.getElementById('subjectError'),
             body: document.getElementById('bodyError'),
-            isHtml: document.getElementById('isHtmlError')
+            isHtml: document.getElementById('isHtmlError'),
         };
     }
     registerEvents() {
@@ -77,21 +80,19 @@ class MailSendPage {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
                 credentials: 'same-origin',
-                body: formBody
+                body: formBody,
             });
             let body = {};
             try {
-                body = await response.json();
+                body = (await response.json());
             }
-            catch (error) {
+            catch {
                 body = {};
             }
-            const validatedFieldErrors = body.fieldErrors && typeof body.fieldErrors === 'object'
-                ? body.fieldErrors
-                : {};
+            const validatedFieldErrors = body.fieldErrors && typeof body.fieldErrors === 'object' ? body.fieldErrors : {};
             this.renderFieldErrors(validatedFieldErrors);
             const fallbackMessage = response.ok ? '送信しました。' : '送信に失敗しました。';
             const message = typeof body.message === 'string' ? body.message : fallbackMessage;
@@ -104,7 +105,7 @@ class MailSendPage {
                 this.showMessage(composed, 'text-danger');
             }
         }
-        catch (error) {
+        catch {
             this.showMessage('通信エラーが発生しました。時間をおいて再度お試しください。', 'text-danger');
         }
         finally {
@@ -112,17 +113,18 @@ class MailSendPage {
         }
     }
     buildPayload() {
-        const { toAddress, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
+        const { toAddress, replyTo, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
         if (!toAddress || !subject || !body) {
             return null;
         }
         return {
             toAddress: this.getFieldValue(toAddress),
+            replyTo: this.getFieldValue(toAddress),
             ccAddress: this.getFieldValue(ccAddress),
             bccAddress: this.getFieldValue(bccAddress),
             subject: this.getFieldValue(subject),
             body: this.getFieldValue(body),
-            isHtml: !!(isHtml && isHtml.checked)
+            isHtml: !!(isHtml && isHtml.checked),
         };
     }
     buildFormBody(payload) {

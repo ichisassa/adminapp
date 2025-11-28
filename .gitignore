@@ -1,7 +1,11 @@
-# Compiled class file
+# ==========================
+# Java / Maven
+# ==========================
+
+# Compiled class files
 *.class
 
-# Log file
+# Log files
 *.log
 
 # BlueJ files
@@ -10,7 +14,16 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Build output (Maven)
+target/
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# ==========================
+# Package archives
+# ==========================
 *.jar
 *.war
 *.nar
@@ -19,9 +32,43 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs
-hs_err_pid*
-replay_pid*
+# ==========================
+# Node / TypeScript
+# ==========================
 
-# Maven build output
-target/
+# Node local installation (frontend-maven-plugin)
+node/
+
+# Installed dependencies
+node_modules/
+
+# npm debug logs
+npm-debug.log*
+yarn-error.log*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# ==========================
+# IDE / Editor files
+# ==========================
+
+# VS Code
+.vscode/
+.history/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# MacOS
+.DS_Store
+
+# Windows thumbnail cache
+Thumbs.db
+
