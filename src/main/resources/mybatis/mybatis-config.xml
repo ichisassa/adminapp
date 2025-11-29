@@ -10,7 +10,7 @@
         <typeAlias alias="MailLog" type="com.example.adminapp.domain.MailLog"/>
     </typeAliases>
     <mappers>
-        <mapper resource="mapper/MailLogMapper.xml"/>
-        <mapper resource="mapper/MailLogSearchMapper.xml"/>
+        <mapper resource="mapper/MailSendMapper.xml"/>
+        <mapper resource="mapper/MailSearchMapper.xml"/>
     </mappers>
 </configuration>
