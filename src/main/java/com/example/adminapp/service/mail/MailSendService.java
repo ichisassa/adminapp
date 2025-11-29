@@ -4,7 +4,7 @@ import com.example.adminapp.domain.MailLog;
 import com.example.adminapp.mapper.MailSendMapper;
 import com.example.adminapp.service.mail.dto.MailSendResponseDto;
 import com.example.adminapp.validation.FormValidator;
-import com.example.adminapp.validation.mail.MailSendField;
+import com.example.adminapp.validation.MailSendField;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

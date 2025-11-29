@@ -1,6 +1,5 @@
-package com.example.adminapp.validation.mail;
+package com.example.adminapp.validation;
 
-import com.example.adminapp.validation.FormField;
 import com.example.adminapp.validation.annotation.EmailList;
 import com.example.adminapp.validation.annotation.MaxLength;
 import com.example.adminapp.validation.annotation.Required;
