@@ -19,7 +19,7 @@
     "PATH": "C:\\work\\java\\jdk-21.0.9\\bin;${env:PATH}"
   },
   "editor.fontFamily": "'MS Mincho', 'ＭＳ 明朝', monospace",
-  "editor.fontSize": 14,
+  "editor.fontSize": 12,
   "editor.fontLigatures": false,
   "editor.scrollBeyondLastLine": false,
   "editor.stickyScroll.enabled": false,

@@ -28,7 +28,9 @@ public class FormValidator {
      * @return Error Message Map
      * @throws IllegalStateException
      */
-    public <E extends Enum<E> & FormField> Map<String, String> validate(Class<E> fieldEnumClass, Map<String, String> params) {
+    public <E extends Enum<E> & FormField> Map<String, String> validate(
+        Class<E> fieldEnumClass, 
+        Map<String, String> params) {
         
         Map<String, String> rtn = new LinkedHashMap<>();
         E[] fields = fieldEnumClass.getEnumConstants();
@@ -70,7 +72,9 @@ public class FormValidator {
      * @return enum定数
      * @throws IllegalStateException
      */
-    private <E extends Enum<E> & FormField> Field resolveField(Class<E> enumClass, E constant) {
+    private <E extends Enum<E> & FormField> Field resolveField(
+        Class<E> enumClass, 
+        E constant) {
         // 例) Class<E> enumClass : com.example.adminapp.validation.mail.MailSendField
         // 例) E constant         : MailSendField.TO("toAddress")、MailSendField.CC("ccAddress")
         try {
@@ -87,7 +91,11 @@ public class FormValidator {
      * @param message   Error Message
      * @param errors    Error Message Map(参照値)
      */
-    private void validateRequired(String fieldName, String value, String message, Map<String, String> errors) {
+    private void validateRequired(
+        String fieldName, 
+        String value, 
+        String message, 
+        Map<String, String> errors) {
         if (value.isEmpty() && !errors.containsKey(fieldName)) {
             errors.put(fieldName, message);
         }
@@ -101,7 +109,13 @@ public class FormValidator {
      * @param message   Error Message
      * @param errors    Error Message Map(参照値)
      */
-    private void validateLength(String fieldName, String value, int maxLength, String message, Map<String, String> errors) {
+    private void validateLength(
+        String fieldName, 
+        String value, 
+        int maxLength, 
+        String message, 
+        Map<String, String> errors) {
+
         if (!value.isEmpty() && value.length() > maxLength && 
             !errors.containsKey(fieldName)) {
             errors.put(fieldName, message);
@@ -115,7 +129,11 @@ public class FormValidator {
      * @param message   Error Message
      * @param errors    Error Message Map(参照値)
      */
-    private void validateEmails(String fieldName, String value, String message, Map<String, String> errors) {
+    private void validateEmails(
+        String fieldName, 
+        String value, 
+        String message, 
+        Map<String, String> errors) {
 
         if (value.isEmpty() || errors.containsKey(fieldName)) {
             return;

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.adminapp.mapper.MailLogMapper">
+<mapper namespace="com.example.adminapp.mapper.MailSendMapper">
 
     <resultMap id="MailLogResultMap" type="com.example.adminapp.domain.MailLog">
         <id property="id" column="id"/>
