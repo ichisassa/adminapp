@@ -1,97 +1,138 @@
-type MailFieldKey = 'toAddress' | 'replyTo' | 'ccAddress' | 'bccAddress' | 'subject' | 'body' | 'isHtml';
+/** フィールドキー */
+type MailFieldKey = 
+'toAddress'  | 
+'replyTo'    | 
+'ccAddress'  | 
+'bccAddress' | 
+'subject'    | 
+'body'       | 
+'isHtml';
 
+/** 送信データ */
 interface MailSendPayload {
-  toAddress: string;
-  replyTo: string;
-  ccAddress: string;
-  bccAddress: string;
-  subject: string;
-  body: string;
-  isHtml: boolean;
+  toAddress  : string;
+  replyTo    : string;
+  ccAddress  : string;
+  bccAddress : string;
+  subject    : string;
+  body       : string;
+  isHtml     : boolean;
 }
 
+/** 受信データ */
 interface MailSendResponseBody {
-  success?: boolean;
-  message?: string;
-  fieldErrors?: Record<string, string>;
-  globalErrors?: string[];
+  success?      : boolean;
+  message?      : string;
+  fieldErrors?  : Record<string, string>;
+  globalErrors? : string[];
 }
 
+/**
+ * メール送信管理クラス
+ */
 class MailSendPage {
-  private form: HTMLFormElement | null = null;
-  private sendButton: HTMLButtonElement | null = null;
-  private messageArea: HTMLElement | null = null;
-  private messageBaseClass = '';
+
+  // 送信先
   private readonly endpoint = '/admin/api/mail/send';
+  // フォーム
+  private form       : HTMLFormElement   | null = null; 
+  // ボタン
+  private sendButton : HTMLButtonElement | null = null; 
+  // メッセージ欄
+  private messageArea: HTMLElement       | null = null;
+  private messageBaseClass  = '';
 
+    // 各入力項目(document.getElementById)
   private fields: Record<MailFieldKey, HTMLInputElement | HTMLTextAreaElement | null> = {
-    toAddress: null,
-    replyTo: null,    
-    ccAddress: null,
-    bccAddress: null,
-    subject: null,
-    body: null,
-    isHtml: null,
+    toAddress  : null,
+    replyTo    : null,    
+    ccAddress  : null,
+    bccAddress : null,
+    subject    : null,
+    body       : null,
+    isHtml     : null,
   };
 
+  // 各エラーメッセージ項目(document.getElementById)
   private fieldErrorAreas: Partial<Record<MailFieldKey, HTMLElement | null>> = {
-    toAddress: null,
-    replyTo: null,
-    ccAddress: null,
-    bccAddress: null,
-    subject: null,
-    body: null,
-    isHtml: null,
+    toAddress  : null,
+    replyTo    : null,
+    ccAddress  : null,
+    bccAddress : null,
+    subject    : null,
+    body       : null,
+    isHtml     : null,
   };
 
+  /**
+   * 初期化処理
+   */
   init(): void {
     this.cacheElements();
     this.registerEvents();
   }
 
+  /**
+   * DOM取得処理
+   */
   private cacheElements(): void {
-    this.form = document.getElementById('mailSendForm') as HTMLFormElement | null;
-    this.sendButton = document.getElementById('btnSendMail') as HTMLButtonElement | null;
-    this.messageArea = document.getElementById('sendMessage');
+
+    this.form             = document.getElementById('mailSendForm') as HTMLFormElement   | null;
+    this.sendButton       = document.getElementById('btnSendMail')  as HTMLButtonElement | null;
+    this.messageArea      = document.getElementById('sendMessage')  as HTMLElement       | null;
     this.messageBaseClass = this.messageArea ? this.messageArea.className : '';
 
     this.fields = {
-      toAddress: document.getElementById('toAddress') as HTMLInputElement | null,
-      replyTo: document.getElementById('toAddress') as HTMLInputElement | null,
-      ccAddress: document.getElementById('ccAddress') as HTMLInputElement | null,
-      bccAddress: document.getElementById('bccAddress') as HTMLInputElement | null,
-      subject: document.getElementById('subject') as HTMLInputElement | null,
-      body: document.getElementById('body') as HTMLTextAreaElement | null,
-      isHtml: document.getElementById('isHtml') as HTMLInputElement | null,
+      toAddress   : document.getElementById('toAddress')  as HTMLInputElement    | null,
+      replyTo     : document.getElementById('toAddress')  as HTMLInputElement    | null,
+      ccAddress   : document.getElementById('ccAddress')  as HTMLInputElement    | null,
+      bccAddress  : document.getElementById('bccAddress') as HTMLInputElement    | null,
+      subject     : document.getElementById('subject')    as HTMLInputElement    | null,
+      body        : document.getElementById('body')       as HTMLTextAreaElement | null,
+      isHtml      : document.getElementById('isHtml')     as HTMLInputElement    | null,
     };
 
     this.fieldErrorAreas = {
-      toAddress: document.getElementById('toAddressError'),
-      replyTo: document.getElementById('replyToError'),
-      ccAddress: document.getElementById('ccAddressError'),
-      bccAddress: document.getElementById('bccAddressError'),
-      subject: document.getElementById('subjectError'),
-      body: document.getElementById('bodyError'),
-      isHtml: document.getElementById('isHtmlError'),
+      toAddress  : document.getElementById('toAddressError'),
+      replyTo    : document.getElementById('replyToError'),
+      ccAddress  : document.getElementById('ccAddressError'),
+      bccAddress : document.getElementById('bccAddressError'),
+      subject    : document.getElementById('subjectError'),
+      body       : document.getElementById('bodyError'),
+      isHtml     : document.getElementById('isHtmlError'),
     };
   }
 
+  /**
+   * イベント登録処理
+   */
   private registerEvents(): void {
     const handler = (event: Event) => this.handleSendClick(event);
+  
     if (this.form) {
+      // submit event
       this.form.addEventListener('submit', handler);
     }
+
     if (this.sendButton) {
+      // button event
       this.sendButton.addEventListener('click', handler);
     }
   }
 
+  /**
+   * 送信トリガー処理
+   */
   private handleSendClick(event: Event): void {
     event.preventDefault();
     void this.submitForm();
   }
 
+  /**
+   * 送信処理
+   */
   private async submitForm(): Promise<void> {
+
     const payload = this.buildPayload();
     if (!payload) {
       return;
@@ -140,25 +181,43 @@ class MailSendPage {
     }
   }
 
+  /**
+   * 送信データ作成処理
+   */
   private buildPayload(): MailSendPayload | null {
-    const { toAddress, replyTo, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
-    if (!toAddress || !subject || !body) {
+
+    const { 
+      toAddress , 
+      replyTo   , 
+      ccAddress , 
+      bccAddress, 
+      subject   , 
+      body      , 
+      isHtml } 
+    = this.fields;
+
+    if (!toAddress || !replyTo || !subject || !body) {
       return null;
     }
 
     return {
-      toAddress: this.getFieldValue(toAddress),
-      replyTo: this.getFieldValue(toAddress),
-      ccAddress: this.getFieldValue(ccAddress),
-      bccAddress: this.getFieldValue(bccAddress),
-      subject: this.getFieldValue(subject),
-      body: this.getFieldValue(body),
-      isHtml: !!(isHtml && (isHtml as HTMLInputElement).checked),
+      toAddress  : this.getFieldValue(toAddress),
+      replyTo    : this.getFieldValue(replyTo),
+      ccAddress  : this.getFieldValue(ccAddress),
+      bccAddress : this.getFieldValue(bccAddress),
+      subject    : this.getFieldValue(subject),
+      body       : this.getFieldValue(body),
+      isHtml     : !!(isHtml && (isHtml as HTMLInputElement).checked),
     };
   }
 
+  /**
+   * URLエンコード化処理
+   */
   private buildFormBody(payload: MailSendPayload): string {
+  
     const params = new URLSearchParams();
+
     Object.entries(payload).forEach(([key, value]) => {
       if (typeof value === 'boolean') {
         params.append(key, value ? 'true' : 'false');
@@ -168,9 +227,14 @@ class MailSendPage {
         params.append(key, value);
       }
     });
+
     return params.toString();
+
   }
 
+  /**
+   * 各項目値取得処理
+   */
   private getFieldValue(element: HTMLInputElement | HTMLTextAreaElement | null): string {
     if (!element) {
       return '';
@@ -179,6 +243,9 @@ class MailSendPage {
     return typeof value.trim === 'function' ? value.trim() : value;
   }
 
+  /**
+   * 送信中表示切替処理
+   */
   private toggleSending(isSending: boolean): void {
     if (!this.sendButton) {
       return;
@@ -187,6 +254,9 @@ class MailSendPage {
     this.sendButton.classList.toggle('disabled', isSending);
   }
 
+  /**
+   * フォーム初期化処理
+   */
   private resetForm(): void {
     if (this.form) {
       this.form.reset();
@@ -194,6 +264,9 @@ class MailSendPage {
     this.clearFieldErrors();
   }
 
+  /**
+   * メッセージ表示処理
+   */
   private showMessage(message: string, stateClass: string): void {
     if (!this.messageArea) {
       return;
@@ -206,11 +279,17 @@ class MailSendPage {
     this.messageArea.textContent = message;
   }
 
+  /**
+   * 表示リセット処理
+   */
   private resetFeedback(): void {
     this.clearFieldErrors();
     this.showMessage('', '');
   }
 
+  /**
+   * 項目エラー消去処理
+   */
   private clearFieldErrors(): void {
     Object.values(this.fieldErrorAreas).forEach((area) => {
       if (area) {
@@ -219,6 +298,9 @@ class MailSendPage {
     });
   }
 
+  /**
+   * 項目エラー反映処理
+   */
   private renderFieldErrors(fieldErrors: Record<string, string>): void {
     this.clearFieldErrors();
     if (!fieldErrors) {
@@ -232,6 +314,9 @@ class MailSendPage {
     });
   }
 
+  /**
+   * メッセージ合成処理
+   */
   private composeGlobalMessage(message?: string, globalErrors?: string[]): string {
     const lines: string[] = [];
     if (message) {
@@ -251,6 +336,9 @@ class MailSendPage {
   }
 }
 
+/**
+ * イベント登録処理
+ */
 document.addEventListener('DOMContentLoaded', () => {
   const page = new MailSendPage();
   page.init();

@@ -1,11 +1,19 @@
 "use strict";
+/**
+ * メール送信管理クラス
+ */
 class MailSendPage {
     constructor() {
+        // 送信先
+        this.endpoint = '/admin/api/mail/send';
+        // フォーム
         this.form = null;
+        // ボタン
         this.sendButton = null;
+        // メッセージ欄
         this.messageArea = null;
         this.messageBaseClass = '';
-        this.endpoint = '/admin/api/mail/send';
+        // 各入力項目(document.getElementById)
         this.fields = {
             toAddress: null,
             replyTo: null,
@@ -15,6 +23,7 @@ class MailSendPage {
             body: null,
             isHtml: null,
         };
+        // 各エラーメッセージ項目(document.getElementById)
         this.fieldErrorAreas = {
             toAddress: null,
             replyTo: null,
@@ -25,10 +34,16 @@ class MailSendPage {
             isHtml: null,
         };
     }
+    /**
+     * 初期化処理
+     */
     init() {
         this.cacheElements();
         this.registerEvents();
     }
+    /**
+     * DOM取得処理
+     */
     cacheElements() {
         this.form = document.getElementById('mailSendForm');
         this.sendButton = document.getElementById('btnSendMail');
@@ -53,19 +68,30 @@ class MailSendPage {
             isHtml: document.getElementById('isHtmlError'),
         };
     }
+    /**
+     * イベント登録処理
+     */
     registerEvents() {
         const handler = (event) => this.handleSendClick(event);
         if (this.form) {
+            // submit event
             this.form.addEventListener('submit', handler);
         }
         if (this.sendButton) {
+            // button event
             this.sendButton.addEventListener('click', handler);
         }
     }
+    /**
+     * 送信トリガー処理
+     */
     handleSendClick(event) {
         event.preventDefault();
         void this.submitForm();
     }
+    /**
+     * 送信処理
+     */
     async submitForm() {
         const payload = this.buildPayload();
         if (!payload) {
@@ -112,14 +138,17 @@ class MailSendPage {
             this.toggleSending(false);
         }
     }
+    /**
+     * 送信データ作成処理
+     */
     buildPayload() {
         const { toAddress, replyTo, ccAddress, bccAddress, subject, body, isHtml } = this.fields;
-        if (!toAddress || !subject || !body) {
+        if (!toAddress || !replyTo || !subject || !body) {
             return null;
         }
         return {
             toAddress: this.getFieldValue(toAddress),
-            replyTo: this.getFieldValue(toAddress),
+            replyTo: this.getFieldValue(replyTo),
             ccAddress: this.getFieldValue(ccAddress),
             bccAddress: this.getFieldValue(bccAddress),
             subject: this.getFieldValue(subject),
@@ -127,6 +156,9 @@ class MailSendPage {
             isHtml: !!(isHtml && isHtml.checked),
         };
     }
+    /**
+     * URLエンコード化処理
+     */
     buildFormBody(payload) {
         const params = new URLSearchParams();
         Object.entries(payload).forEach(([key, value]) => {
@@ -142,6 +174,9 @@ class MailSendPage {
         });
         return params.toString();
     }
+    /**
+     * 各項目値取得処理
+     */
     getFieldValue(element) {
         if (!element) {
             return '';
@@ -149,6 +184,9 @@ class MailSendPage {
         const value = element.value == null ? '' : element.value;
         return typeof value.trim === 'function' ? value.trim() : value;
     }
+    /**
+     * 送信中表示切替処理
+     */
     toggleSending(isSending) {
         if (!this.sendButton) {
             return;
@@ -156,12 +194,18 @@ class MailSendPage {
         this.sendButton.disabled = isSending;
         this.sendButton.classList.toggle('disabled', isSending);
     }
+    /**
+     * フォーム初期化処理
+     */
     resetForm() {
         if (this.form) {
             this.form.reset();
         }
         this.clearFieldErrors();
     }
+    /**
+     * メッセージ表示処理
+     */
     showMessage(message, stateClass) {
         if (!this.messageArea) {
             return;
@@ -173,10 +217,16 @@ class MailSendPage {
         this.messageArea.className = className;
         this.messageArea.textContent = message;
     }
+    /**
+     * 表示リセット処理
+     */
     resetFeedback() {
         this.clearFieldErrors();
         this.showMessage('', '');
     }
+    /**
+     * 項目エラー消去処理
+     */
     clearFieldErrors() {
         Object.values(this.fieldErrorAreas).forEach((area) => {
             if (area) {
@@ -184,6 +234,9 @@ class MailSendPage {
             }
         });
     }
+    /**
+     * 項目エラー反映処理
+     */
     renderFieldErrors(fieldErrors) {
         this.clearFieldErrors();
         if (!fieldErrors) {
@@ -196,6 +249,9 @@ class MailSendPage {
             }
         });
     }
+    /**
+     * メッセージ合成処理
+     */
     composeGlobalMessage(message, globalErrors) {
         const lines = [];
         if (message) {
@@ -214,6 +270,9 @@ class MailSendPage {
         return lines.join('\n');
     }
 }
+/**
+ * イベント登録処理
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const page = new MailSendPage();
     page.init();
