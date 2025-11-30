@@ -2,21 +2,36 @@ package com.example.adminapp.service.mail.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Getter
+@Setter
+
 /**
  * MailSendResponseDto Class
  */
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MailSendResponseDto {
 
+    // 処理結果(True:OK、False：NG)
     private boolean success;
+    // Message
     private String message;
+    // Error Message(各入力項目)
     private Map<String, String> fieldErrors;
+    // Error Message(全体)
     private List<String> globalErrors;
 
+    /**
+     * 処理結果(正常)
+     * @param message Message
+     * @return 処理結果
+     */
     public static MailSendResponseDto success(String message) {
         MailSendResponseDto response = new MailSendResponseDto();
         response.setSuccess(true);
@@ -24,6 +39,11 @@ public class MailSendResponseDto {
         return response;
     }
 
+    /**
+     * 処理結果(異常)
+     * @param message Message
+     * @return 処理結果
+     */
     public static MailSendResponseDto failure(
             String message,
             Map<String, String> fieldErrors,
@@ -45,37 +65,5 @@ public class MailSendResponseDto {
             }
         }
         return response;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Map<String, String> getFieldErrors() {
-        return fieldErrors;
-    }
-
-    public void setFieldErrors(Map<String, String> fieldErrors) {
-        this.fieldErrors = fieldErrors;
-    }
-
-    public List<String> getGlobalErrors() {
-        return globalErrors;
-    }
-
-    public void setGlobalErrors(List<String> globalErrors) {
-        this.globalErrors = globalErrors;
     }
 }
